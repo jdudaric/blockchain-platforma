@@ -10,6 +10,7 @@ Glasanje je pseudonimno: na lancu se koriste adrese novčanika, ali javne transa
 
 - **Suvlasnik / ovlašteni novčanik stana:** predstavlja stan s važećim STN tokenom, predlaže projekte i glasa u ime stana. Više suvlasnika istog stana ne dobiva dodatne tokene ni glasove.
 - **Predstavnik suvlasnika:** dodjeljuje i oduzima tokene pri promjeni vlasnika, jedini pokreće sve vrste glasanja te određuje početak i rok završetka. Vidi koji stanovi nisu glasali. Predstavnička uloga sama po sebi ne daje glasačko pravo; za glasanje predstavnik mora imati pravo za stan.
+- **Zamjenik predstavnika:** ima ovlasti običnog suvlasnika samo za stan za koji ima STN; može pokrenuti preuzimanje predstavničke uloge uz sigurnosno čekanje od 7 dana. Predstavnik može otkazati zahtjev tijekom čekanja. Zamjenik prije dovršetka preuzimanja ne može pokretati glasanja niti upravljati tokenima.
 - **Posjetitelj / adresa bez prava za stan:** nema ovlasti predlaganja, glasanja ni upravljanja. Opseg pristupa aplikaciji bez prijave ostaje otvoren; javne podatke blockchaina moguće je čitati izvan aplikacije.
 
 ## Odluke o tokenu
@@ -20,21 +21,25 @@ Glasanje je pseudonimno: na lancu se koriste adrese novčanika, ali javne transa
 - Pravo je trajno i višekratno: ne istječe završetkom glasanja i token se glasanjem ne troši. Trajnost ne sprečava oduzimanje pri promjeni vlasnika.
 - Pri promjeni vlasnika predstavnik oduzima pravo starom vlasniku i dodjeljuje ga novom. Stari vlasnik nakon oduzimanja ne smije glasati temeljem tog stana.
 - Ukupan broj stanova zgrade nije isto što i broj trenutačno dodijeljenih tokena. Nedodijeljeni tokeni ne smiju automatski smanjiti osnovicu za prihvaćanje projekta.
-- Model za vlasnika više stanova i promjenu vlasnika tijekom aktivnog glasanja treba razriješiti prije implementacije.
+- Ista adresa može biti ovlaštena za više stanova: za dva stana ima 2 STN i pravo na po jedan glas za svaki stan u svakom krugu. Pravo se uvijek provjerava po identifikatoru stana, a ne samo prema ukupnom saldu adrese.
+- Dok traje bilo koji aktivni krug glasanja, predstavnik ne može dodjeljivati ni oduzimati prava. Nakon isteka kruga smije promijeniti vlasnika bez brisanja ili promjene povijesnih glasova.
+- Za ovu zgradu registar ima fiksnih **N = 25 stanova**, pa je prag prihvaćanja **13 ZA**. Broj izdanih STN ne mijenja N.
 
 ## Odluke o modulu
 
-1. Suvlasnici predlažu projekte. Predlaganje samo po sebi ne otvara glasanje.
-2. Samo predstavnik pokreće krug odabira prioriteta, dodatni krug zbog izjednačenja i konačno glasanje ZA/PROTIV.
-3. U krugu prioriteta stan predaje jedan konačan odabir najviše **3 različita prijedloga**. Svaki odabrani prijedlog dobiva jednu potporu tog stana; nije dopušteno višestruko poduprijeti isti prijedlog.
-4. Izjednačenje koje onemogućuje izbor prioriteta rješava se dodatnim glasanjem među izjednačenim prijedlozima. Svaki stan ima **jedan glas za jedan prijedlog**. Postupak ako se izjednačenje ponovi ostaje otvoren.
-5. Nakon određivanja prioriteta slijedi zasebno glasanje **ZA/PROTIV** projekta. Svaki stan smije predati jedan od ta dva odgovora.
-6. Projekt je prihvaćen ako broj glasova ZA iznosi najmanje **51% svih stanova zgrade**. Za N stanova potrebno je najmanje **⌈51 × N / 100⌉** glasova ZA. Primjeri: za 10 stanova potrebno je 6 glasova ZA, za 100 stanova 51. Nije dovoljno imati većinu samo među sudionicima.
-7. Neglasanje ne daje glas ZA i ne bilježi se kao glas PROTIV. Ako nema sudionika u glasanju ZA/PROTIV, projekt je odbijen.
-8. Predani glas ili odabir je konačan; nema povlačenja, dopunjavanja ni promjene u istom krugu. U novom krugu stan ponovno ima odgovarajuće pravo glasanja.
-9. Predstavnik unaprijed određuje početak i kraj kruga. Glasanje vrijedi u intervalu **početak ≤ vrijeme < rok**. Istekom roka automatski prestaje primanje glasova, bez ručnog zaključavanja predstavnika. Pravilo vrijedi za sve vrste krugova.
-10. Aplikacija prikazuje rezultate nakon isteka roka. Predstavnik vidi evidenciju stanova koji nisu glasali; taj prikaz drugim korisnicima nije dogovorena ovlast.
-11. Automatski završetak znači da status i mogućnost glasanja ovise o roku, a ne o tome je li netko pritisnuo gumb. Pametni ugovor sam ne šalje transakciju po isteku vremena; eventualna tehnička finalizacija mora poštovati istekli rok i već zadana pravila rezultata.
+1. Suvlasnici predlažu projekte. Predlaganje samo po sebi ne otvara glasanje. Stan može imati najviše **3 aktivna prijedloga**; naslov ima najviše 100 znakova, a opis najviše 1000 znakova.
+2. **Ciklus** se pokreće odlukom predstavnika. U prioritete ulaze **svi valjani prijedlozi** tog ciklusa; predstavnik ne može proizvoljno izostaviti prijedlog. Jedino predstavnik pokreće krug prioriteta, dodatni krug zbog izjednačenja i konačno glasanje ZA/PROTIV.
+3. U krugu prioriteta stan predaje jedan konačan odabir od **1 do 3 različita prijedloga**. Svaki odabrani prijedlog dobiva jednu potporu stana; isti prijedlog ne može dobiti više potpora istog stana.
+4. Prijedlozi se rangiraju prema broju potpora. Ako je **prvo mjesto** izjednačeno, provodi se dodatni krug samo za izjednačene prvoplasirane prijedloge. Svaki stan ima jedan glas za jedan prijedlog u dodatnom krugu. Ako se izjednačenje na prvom mjestu ponovi, pokreće se novi dodatni krug, dok ne postoji jedan pobjednik. Ostala izjednačenja rješavaju se ranijim vremenom podnošenja prijedloga, pa manjim identifikatorom ako je vrijeme jednako.
+5. Ako u prioritetnom krugu nema nijednog glasa, ne određuje se pobjednik; predstavnik može pokrenuti novi krug prioriteta. Prvoplasirani projekt ide prvi u zasebni krug **ZA/PROTIV**. Svaki stan smije dati jedan odgovor ZA ili PROTIV.
+6. Projekt se prihvaća samo ako broj glasova ZA iznosi najmanje **⌈51 × N / 100⌉**, gdje je N ukupan fiksni broj stanova zgrade, a ne broj izdanih tokena ili sudionika. Za **N = 25** potrebno je **13 ZA**. Jednaki brojevi ZA i PROTIV ne pokreću dodatno glasanje, nego se primjenjuje isti prag.
+7. Neglasanje ne daje glas ZA niti se bilježi kao PROTIV. Ako nema sudionika u ZA/PROTIV, projekt je odbijen. Ako je projekt odbijen, na red dolazi sljedeći projekt s rang-liste. Ako je prihvaćen, **ciklus završava**; preostali projekti mogu sudjelovati u novom ciklusu, ali **ne zadržavaju prethodni rang**.
+8. Za isti identifikator **odbijenog projekta** nije moguće ponovno pokrenuti ZA/PROTIV prije isteka **90 dana od završetka** prethodnog konačnog kruga. Novi identifikator smatra se novim projektom; sadržajna sličnost sama po sebi ne aktivira zabranu.
+9. Predani glas ili odabir je konačan: nema povlačenja, dopunjavanja ni promjene u istom krugu. U novom krugu stan ponovno ima odgovarajuće pravo glasanja. Prijenos vlasništva ne poništava povijesne glasove.
+10. Predstavnik pri pokretanju unaprijed postavlja početak i rok svakog kruga. Nakon pokretanja **ni predstavnik ne smije promijeniti rok**. Glasanje vrijedi kada je **početak ≤ block.timestamp < rok**; nakon isteka automatski se odbijaju novi glasovi.
+11. Aplikacija prikazuje rezultate nakon isteka roka. Predstavnik vidi evidenciju stanova koji nisu glasali; javni blockchain podaci ostaju čitljivi i prije isteka, pa je glasanje **pseudonimno, ne tajno ili potpuno anonimno**.
+12. Ishod završnog kruga računa se iz zabilježenih glasova i roka **bez obvezne dodatne transakcije finalizacije**. Ako postoji pomoćna tehnička finalizacija, ona ne smije promijeniti rezultat niti uvjetovati čitanje rezultata.
+13. Zadano trajanje kruga prioriteta i ZA/PROTIV je **7 dana**, a dodatnog kruga **3 dana**; početak i rok određuje predstavnik prije pokretanja. Zamjenik može pokrenuti preuzimanje uloge uz **7 dana** sigurnosnog čekanja; dotadašnji predstavnik smije otkazati preuzimanje prije isteka čekanja.
 
 ## Funkcije
 
@@ -42,16 +47,19 @@ Ovo je funkcionalni opis, bez programskog koda i bez konačnih potpisa funkcija.
 
 | Funkcija | Tko je smije pozvati | Ulazni podaci | Učinak | Neuspjeh i točna poruka |
 | --- | --- | --- | --- | --- |
-| Dodjela prava za stan | Predstavnik | Oznaka postojećeg stana, adresa novog vlasnika | Dodjeljuje 1 STN za stan bez aktivnog prava | Druga uloga: `Samo predstavnik`; nepoznat stan: `Stan ne postoji`; stan već ima pravo: `Stan vec ima token`; nevaljana adresa: `Neispravna adresa` |
-| Oduzimanje prava za stan | Predstavnik | Oznaka stana | Ukida postojeće pravo i pripadajući STN | Druga uloga: `Samo predstavnik`; nepoznat stan: `Stan ne postoji`; nema aktivnog prava: `Stan nema token` |
+| Dodjela prava za stan | Predstavnik | Oznaka postojećeg stana, adresa novog vlasnika | Dodjeljuje 1 STN za stan bez aktivnog prava; blokirano tijekom aktivnog kruga | Aktivni krug: `Promjena prava nije dopustena tijekom glasanja`; druga uloga: `Samo predstavnik`; nepoznat stan: `Stan ne postoji`; stan već ima pravo: `Stan vec ima token`; nevaljana adresa: `Neispravna adresa` |
+| Oduzimanje prava za stan | Predstavnik | Oznaka stana | Ukida postojeće pravo i pripadajući STN; blokirano tijekom aktivnog kruga | Aktivni krug: `Promjena prava nije dopustena tijekom glasanja`; druga uloga: `Samo predstavnik`; nepoznat stan: `Stan ne postoji`; nema aktivnog prava: `Stan nema token` |
 | Prijenos ili odobrenje prijenosa STN | Nitko | Primatelj ili ovlaštena adresa i količina | Ne omogućuje prijenos ni ovlast za prijenos | Pokušaj prijenosa ili odobrenja: `Token nije prenosiv` |
-| Predlaganje projekta | Suvlasnik s pravom za stan | Stan, naslov i opis prijedloga | Evidentira prijedlog za zgradu | Nema prava: `Nema prava za stan`; prazan naslov ili opis: `Nepotpun prijedlog` |
-| Pokretanje kruga prioriteta | Predstavnik | Skup postojećih prijedloga, početak i rok | Otvara vremenski određen krug prioriteta | Druga uloga: `Samo predstavnik`; prazan skup: `Nema prijedloga`; nepoznat prijedlog: `Prijedlog ne postoji`; kraj nije nakon početka ili je već istekao: `Neispravan rok` |
+| Predlaganje projekta | Suvlasnik s pravom za stan | Stan, naslov i opis prijedloga | Evidentira prijedlog za zgradu | Nema prava: `Nema prava za stan`; prazan naslov ili opis: `Nepotpun prijedlog`; više od 3 aktivna: `Previse aktivnih prijedloga`; prekoračena duljina: `Predug prijedlog` |
+| Pokretanje kruga prioriteta | Predstavnik | Skup postojećih prijedloga, početak i rok | Otvara vremenski određen krug prioriteta za sve valjane prijedloge ciklusa | Druga uloga: `Samo predstavnik`; prazan skup: `Nema prijedloga`; nepoznat prijedlog: `Prijedlog ne postoji`; kraj nije nakon početka ili je već istekao: `Neispravan rok` |
 | Predaja prioriteta | Suvlasnik s pravom za stan | Krug, stan, 1 do 3 različita prijedloga iz kruga | Jednokratno bilježi odabir i potpore | Zajedničke provjere glasanja navedene ispod; više od 3: `Najvise 3 prijedloga`; ponavljanje prijedloga: `Prijedlog je ponovljen`; prazan odabir: `Odaberite prijedlog`; prijedlog izvan kruga: `Prijedlog nije u glasanju` |
 | Pokretanje dodatnog kruga | Predstavnik | Završen krug s izjednačenjem, izjednačeni prijedlozi, početak i rok | Otvara dodatni krug s jednim izborom po stanu | Druga uloga: `Samo predstavnik`; prethodni krug traje: `Prethodno glasanje nije zavrseno`; nema odgovarajućeg izjednačenja: `Nema izjednacenja`; neodgovarajući kandidati: `Neispravni kandidati`; nevaljan rok: `Neispravan rok` |
 | Glasanje u dodatnom krugu | Suvlasnik s pravom za stan | Krug, stan, jedan prijedlog iz dodatnog kruga | Jednokratno bilježi jedan glas | Zajedničke provjere; broj izbora nije 1: `Odaberite jedan prijedlog`; prijedlog izvan kruga: `Prijedlog nije u glasanju` |
-| Pokretanje ZA/PROTIV | Predstavnik | Projekt odabran postupkom prioriteta, početak i rok | Otvara konačno odlučivanje o projektu | Druga uloga: `Samo predstavnik`; prioritet nije razriješen: `Prioritet nije odredjen`; nevaljan rok: `Neispravan rok` |
+| Pokretanje ZA/PROTIV | Predstavnik | Projekt odabran postupkom prioriteta, početak i rok | Otvara konačno odlučivanje o sljedećem projektu na rang-listi; poštuje 90 dana zabrane ponavljanja istog odbijenog ID-a | Druga uloga: `Samo predstavnik`; prioritet nije razriješen: `Prioritet nije odredjen`; nevaljan rok: `Neispravan rok` |
 | Predaja ZA/PROTIV | Suvlasnik s pravom za stan | Krug, stan, odgovor ZA ili PROTIV | Jednokratno bilježi odgovor | Zajedničke provjere; drugi odgovor: `Neispravan glas` |
+| Pokretanje preuzimanja uloge | Zamjenik | Identifikator postupka | Pokreće čekanje od 7 dana; ne daje odmah predstavničke ovlasti | Druga uloga: `Samo zamjenik`; već aktivan postupak: `Preuzimanje je pokrenuto` |
+| Otkazivanje preuzimanja uloge | Predstavnik | Identifikator postupka | Otkazuje preuzimanje prije isteka čekanja | Druga uloga: `Samo predstavnik`; nema aktivnog postupka: `Nema preuzimanja` |
+| Dovršetak preuzimanja uloge | Zamjenik | Identifikator postupka | Po isteku 7 dana zamjenik postaje predstavnik, prethodna adresa gubi ovlasti | Prije isteka: `Cekanje nije zavrseno`; otkazano ili nepostojeće: `Nema preuzimanja` |
 | Prikaz rezultata u aplikaciji | Suvlasnik i predstavnik | Krug | Nakon roka prikazuje zbrojeve, sudjelovanje i ishod prema vrsti kruga | Nepoznat krug: `Glasanje ne postoji`; prije isteka: `Rezultati jos nisu dostupni` |
 | Prikaz onih koji nisu glasali | Predstavnik | Krug | Prikazuje stanove bez predanog glasa i vezu na evidenciju vlasnika izvan lanca | Druga uloga: `Samo predstavnik`; nepoznat krug: `Glasanje ne postoji` |
 
@@ -63,7 +71,7 @@ Ovo je funkcionalni opis, bez programskog koda i bez konačnih potpisa funkcija.
 
 | Radnja | Posjetitelj / bez prava | Suvlasnik s pravom za stan | Predstavnik |
 | --- | --- | --- | --- |
-| Dodijeliti ili oduzeti STN | Ne | Ne | Da |
+| Dodijeliti ili oduzeti STN | Ne | Ne | Da, samo izvan aktivnog kruga |
 | Prenijeti STN ili odobriti prijenos | Ne | Ne | Ne |
 | Predložiti projekt | Ne | Da | Da, uz token |
 | Pokrenuti prioritete | Ne | Ne | Da |
@@ -76,21 +84,23 @@ Ovo je funkcionalni opis, bez programskog koda i bez konačnih potpisa funkcija.
 | Vidjeti rezultate u aplikaciji prije roka | Ne | Ne | Ne |
 | Vidjeti rezultate u aplikaciji nakon roka | Nije odlučeno | Da | Da |
 | Vidjeti popis onih koji nisu glasali u aplikaciji | Ne | Ne | Da |
-| Mijenjati rok aktivnog kruga | Nije odlučeno | Nije odlučeno | Nije odlučeno |
+| Mijenjati rok nakon pokretanja kruga | Ne | Ne | Ne |
+| Pokrenuti preuzimanje predstavničke uloge | Ne | Samo imenovani zamjenik | Ne (može dobrovoljno prenijeti ulogu) |
+| Otkazati preuzimanje tijekom čekanja | Ne | Ne | Da |
 | Pregledavati javne podatke blockchaina | Da | Da | Da |
 
 ## Model podataka na lancu
 
 Konceptualni model potreban za dogovorena pravila:
 
-- Uloga/adresa predstavnika; postupak prve dodjele i zamjene uloge ostaje otvoren.
-- Registar stanova s tehničkim oznakama, ukupan broj stanova N i veza stana s ovlaštenom adresom. Ne koristiti imena osoba kao oznake.
+- Uloga/adresa predstavnika i imenovanog zamjenika, zahtjev za preuzimanje, vrijeme pokretanja i status otkazivanja; inicijalno imenovanje ostaje otvoreno.
+- Fiksni registar **25 stanova (N = 25)** s tehničkim oznakama i vezom svakog stana s ovlaštenom adresom. Ne koristiti imena osoba kao oznake. Jedna adresa može biti povezana s više stanova.
 - ERC-20 metapodaci, stanja STN i evidencija aktivnog prava po stanu. Sam saldo adrese nije dovoljan za provjeru pravila „jedan glas po stanu”.
-- Prijedlog: identifikator, autorova adresa i stan, naslov/opis ili referenca na sadržaj. Točan smještaj sadržaja ostaje otvoren.
-- Krug: identifikator, vrsta (prioriteti / dodatni krug / ZA-PROTIV), kandidati ili projekt, veza na prethodni krug, početak i rok.
+- Prijedlog: identifikator, autorova adresa i stan, naslov/opis ili referenca na sadržaj, vrijeme podnošenja, status aktivnosti i pripadnost ciklusu. Ograničenje je najviše tri aktivna prijedloga po stanu. Točan smještaj sadržaja ostaje otvoren.
+- Ciklus: identifikator, prijedlozi, rang-lista i status. Krug: identifikator, vrsta (prioriteti / dodatni krug / ZA-PROTIV), kandidati ili projekt, veza na ciklus i prethodni krug, početak i nepromjenjivi rok. Evidencija zadnjeg odbijanja po ID-u projekta za zabranu od 90 dana.
 - Evidencija je li stan glasao u određenom krugu; konačan izbor/odgovor i pripadajući zbrojevi potrebni za provjerljiv rezultat.
-- Osnovica N korištena za konačno odlučivanje te iz nje izveden prag. Vrijeme utvrđivanja osnovice i popisa prava treba potvrditi.
-- Status završetka izveden iz roka; rezultat prioriteta, izjednačenje odnosno prihvaćen/odbijen projekt izvedeni iz zabilježenih glasova.
+- Fiksna osnovica N = 25 i izvedeni prag 13 ZA, neovisno o trenutačno dodijeljenim STN tokenima; povijesna evidencija glasa po stanu ne mijenja se pri naknadnoj promjeni vlasnika.
+- Status završetka izveden iz roka; rezultat prioriteta, izjednačenje i prihvaćen/odbijen projekt izvedeni iz zabilježenih glasova, bez obvezne transakcije finalizacije. Poredak koristi broj potpora, a za jednaka niža mjesta vrijeme prijedloga i ID.
 
 ## Što se NE sprema na blockchain
 
@@ -127,6 +137,24 @@ Svaki kriterij pretpostavlja da su svi uvjeti koji nisu predmet provjere valjani
 - **K22 — Evidencija sudjelovanja:** **Zadano** je da dio stanova nije glasao. **Kada** predstavnik otvori evidenciju. **Tada** vidi te stanove; isti zahtjev drugog korisnika pada s `Samo predstavnik`.
 - **K23 — Nevaljan rok (neuspjeh):** **Zadano** je da predstavnik pokreće krug. **Kada** odredi kraj koji nije nakon početka ili je već istekao. **Tada** zahtjev pada s `Neispravan rok`.
 
+### Dodatni kriteriji prihvaćanja — prihvaćeni nalazi revizije
+
+- **K24 — Više stanova po adresi:** **Zadano** je da adresa ima pravo za dva različita stana. **Kada** glasa u istom krugu za svaki stan jednom. **Tada** oba glasa su valjana, ali drugi pokušaj za isti stan pada s `Stan je vec glasao`.
+- **K25 — Blokada promjene prava tijekom kruga:** **Zadano** je da je krug aktivan. **Kada** predstavnik pokuša dodijeliti ili oduzeti STN. **Tada** zahtjev pada s `Promjena prava nije dopustena tijekom glasanja`; tokeni, veza stan–adresa i stari glasovi ostaju nepromijenjeni.
+- **K26 — Povijesni glas:** **Zadano** je da je stan glasao u završenom krugu. **Kada** predstavnik nakon završetka promijeni vlasnika. **Tada** prethodni glas i zbrojevi ostaju isti, a u budućem krugu može glasati samo novi vlasnik.
+- **K27 — Automatski završetak i rezultat:** **Zadano** je da je dosegnut rok. **Kada** se bez finalizacijske transakcije zatraži ishod. **Tada** sustav vraća konačne zbrojeve i odbija daljnje glasove.
+- **K28 — Redoslijed projekata:** **Zadano** je da je završen krug prioriteta. **Kada** se određuje prvi projekt. **Tada** bira se najveći broj potpora; izjednačenje na prvom mjestu zahtijeva dodatni krug, dok se jednakost na ostalim mjestima razrješava ranijim vremenom i manjim ID-om.
+- **K29 — Ponovljeno izjednačenje:** **Zadano** je da dodatni krug opet završava izjednačenjem za prvo mjesto. **Kada** predstavnik pokrene novi dodatni krug. **Tada** kandidati su samo ponovno izjednačeni prijedlozi, svaki stan ima jedan glas, a nijedan projekt još nije određen kao pobjednik.
+- **K30 — Odbijen pa sljedeći:** **Zadano** je da prvi projekt nema potreban broj ZA. **Kada** završi njegov krug. **Tada** rezultat je odbijen i sljedeći raspoloživi projekt na rang-listi postaje kandidat za zasebni ZA/PROTIV.
+- **K31 — Prihvaćen projekt završava ciklus:** **Zadano** je da je projekt prihvaćen. **Kada** predstavnik pokuša u istom ciklusu pokrenuti ZA/PROTIV za drugi projekt. **Tada** zahtjev se odbija; neobrađeni prijedlozi mogu sudjelovati u novom ciklusu samo uz novo određivanje prioriteta.
+- **K32 — Nepromjenjiv rok:** **Zadano** je da je krug pokrenut. **Kada** bilo koji korisnik, uključujući predstavnika, pokuša izmijeniti početak ili rok. **Tada** nijedna izmjena nije dopuštena. Krug od 7 dana, odnosno dodatni krug od 3 dana, završava na unaprijed zadanom roku.
+- **K33 — Svi prijedlozi:** **Zadano** je da ciklus sadrži valjane prijedloge A, B i C. **Kada** predstavnik pokrene prioritete. **Tada** svi A, B i C ulaze u popis kandidata; podskup koji proizvoljno izostavlja valjani prijedlog nije dopušten.
+- **K34 — Ograničenje prijedloga:** **Zadano** je da stan već ima tri aktivna prijedloga. **Kada** pokuša poslati četvrti. **Tada** zahtjev pada s `Previse aktivnih prijedloga`. Naslov iznad 100 znakova ili opis iznad 1000 znakova pada s `Predug prijedlog`.
+- **K35 — 25 stanova:** **Zadano** je N = 25. **Kada** završi ZA/PROTIV. **Tada** 12 ZA znači odbijanje, a 13 ZA znači prihvaćanje, neovisno o broju glasova PROTIV i broju nedodijeljenih STN.
+- **K36 — Ponovni pokušaj nakon odbijanja:** **Zadano** je da je projekt s ID-om X odbijen. **Kada** predstavnik prije isteka 90 dana pokuša ponovno pokrenuti ZA/PROTIV za ID X. **Tada** zahtjev se odbija. Novi ID nije automatski obuhvaćen zabranom samo zato što ima sličan sadržaj.
+- **K37 — Zamjenik predstavnika:** **Zadano** je da je imenovan zamjenik. **Kada** pokrene preuzimanje. **Tada** ne dobiva ovlasti prije isteka 7 dana; ako predstavnik tijekom čekanja otkaže postupak, on se ne može završiti; nakon valjanog preuzimanja prethodna adresa gubi predstavničke ovlasti.
+- **K38 — Pseudonimnost:** **Zadano** je da krug traje. **Kada** korisnik pogleda rezultate u aplikaciji. **Tada** aplikacija ne prikazuje zbrojeve prije roka i upozorava da se transakcije i glasovi mogu čitati izravno s javnog lanca; ne obećava anonimnost.
+
 ## Izvan opsega
 
 - Više zgrada, glasanje po osobama ili suvlasničkim udjelima, trgovanje tokenima i delegiranje glasova.
@@ -137,21 +165,19 @@ Svaki kriterij pretpostavlja da su svi uvjeti koji nisu predmet provjere valjani
 
 ## Otvorena pitanja
 
-1. Kako birati i zamijeniti predstavnika, uključujući gubitak njegova novčanika?
-2. Tko i kako početno potvrđuje popis i ukupan broj stanova te mijenja registar? Kada se za svaki krug utvrđuju N i glasačka prava?
-3. Kako se među više suvlasnika istog stana određuje ovlašteni novčanik? Kako isti vlasnik ostvaruje prava za više stanova?
-4. Što se događa pri promjeni vlasnika tijekom aktivnog kruga, osobito ako je stan već glasao? Mora ostati očuvano pravilo najviše jednog glasa stana u krugu.
-5. Što ako dodatni krug ponovno završi izjednačeno? Nije dogovoren odlučujući glas predstavnika.
-6. Koliko prioriteta prelazi u konačno odlučivanje i kojim redoslijedom? Što ako nema glasova u prioritetnom ili dodatnom krugu? Pravilo automatskog odbijanja pri 0 sudionika potvrđeno je za ZA/PROTIV.
-7. Smije li predstavnik uređivati, otkazati ili promijeniti rok već pokrenutog kruga? Kako se uređuju/povlače prijedlozi i ograničava njihov broj?
-8. Smije li istodobno trajati više krugova i kada se odbijeni projekt smije ponovno predložiti?
-9. Gdje se čuvaju naslovi, opisi i prilozi te tko ima pristup privatnoj evidenciji vlasnika? Koji su podaci u aplikaciji dostupni posjetiteljima?
-10. Koji su najveći dopušteni opseg prijedloga, trajanje kruga i duljina tekstova? Koji je redoslijed provjera ako zahtjev ima više grešaka?
-11. Treba li posebna transakcija finalizacije radi pohrane ishoda i tko je može pozvati? Završetak prava glasanja i prikaz rezultata ne smiju ovisiti o ručnom zaključavanju predstavnika.
+Potvrđene odluke iz revizije više se ne smatraju otvorenima. Preostaje precizirati:
+
+1. Tko i kako pri inicijalnoj instalaciji potvrđuje fiksni registar 25 stanova i imenuje prvog predstavnika i zamjenika? Kako se nakon preuzimanja bira novi zamjenik?
+2. Kako se između više stvarnih suvlasnika istog stana izvan lanca bira ovlaštena adresa te kako predstavnik dokumentira provjeru promjene vlasnika? Na blockchainu pravo ostaje jedno po stanu.
+3. Ako nakon odbijanja posljednjeg projekta više nema kandidata, završava li ciklus bez prihvaćenog projekta? Smiju li se aktivni i zakazani krugovi preklapati? (Nije još potvrđeno.)
+4. Može li se projekt s aktivnom 90-dnevnom zabranom ponovno uključiti u glasanje prioriteta, iako ne smije u konačni ZA/PROTIV prije isteka zabrane?
+5. Kako se tehnički uređuju/povlače prijedlozi i kada prijedlog prestaje biti „aktivan”? Gdje se pohranjuju tekstovi i prilozi te kako se osigurava ograničenje znakova?
+6. Koji se podaci prikazuju posjetitelju aplikacije, tko održava privatnu evidenciju identiteta i kojim redoslijedom se provjeravaju istodobne greške?
+7. Treba li definirati maksimalno trajanje dodatnih ponavljanja izjednačenja, iako je poslovno pravilo ponavljati do pobjednika? Oporavak uz zamjenika i čekanje ne dokazuje stvarni gubitak ključa.
 
 ## Sljedivost
 
-Izvori su korisnikov zahtjev za nastavak razgovora **„BA projekt VJEŽBE”** (6af33f8f-bf08-83ed-a578-7c457b38df1f), dostupni završni dio tog razgovora i lokalne upute AGENTS.md. Dostupan dohvat razgovora sadrži završne odluke o pokretanju, isteku roka, nultom sudjelovanju i konačnosti glasa te sažetak prethodnih odluka; za ostale detalje mjerodavan je izričit korisnikov zahtjev. Neriješeni detalji nisu predstavljeni kao ranije potvrđene odluke.
+Izvori su korisnikov zahtjev za nastavak razgovora **„BA projekt VJEŽBE”** (6af33f8f-bf08-83ed-a578-7c457b38df1f), dostupni završni dio tog razgovora i lokalne upute AGENTS.md. Dostupan dohvat razgovora sadrži završne odluke o pokretanju, isteku roka, nultom sudjelovanju i konačnosti glasa te sažetak prethodnih odluka; za ostale detalje mjerodavan je izričit korisnikov zahtjev. Neriješeni detalji nisu predstavljeni kao ranije potvrđene odluke. Prihvaćeni nalazi recenzije i korisnikove naknadne potvrde iz razgovora uneseni su u ovu inačicu SPEC.md; odbijeni prijedlozi (potpuna anonimnost i prijenos starog ranga u novi ciklus) nisu uvedeni.
 
 | Zahtjev / odluka | Odjeljak | Provjera |
 | --- | --- | --- |
@@ -165,4 +191,8 @@ Izvori su korisnikov zahtjev za nastavak razgovora **„BA projekt VJEŽBE”** 
 | Pseudonimnost i rezultati nakon završetka | Opis; Što se NE sprema na blockchain | K21 i pregled teksta aplikacije pri implementaciji |
 | Predstavnik vidi tko nije glasao | Matrica ovlasti; Model podataka na lancu | K22 |
 | Kontrola prava i točne poruke bez dijakritike | Funkcije; Kriteriji prihvaćanja | K2–K4, K8, K10–K12, K14, K18–K23 |
+| Više stanova, blokada promjene prava i povijesni glasovi | Odluke o tokenu; Funkcije | K24–K26 |
+| Rangiranje, dodatni krug i sljedeći projekt | Odluke o modulu | K28–K31 |
+| Rokovi, svi prijedlozi, limiti, 90 dana | Odluke o modulu; Funkcije | K32–K36 |
+| Zamjenik i pseudonimnost | Korisnici i uloge; Funkcije | K37–K38 |
 | Neriješene odluke ostaju vidljive | Otvorena pitanja | Ručni pregled prije implementacije |
