@@ -1,9 +1,13 @@
 # Naziv projekta
 
-Autor: Ime Prezime
+Autor: Jakov Đudarić
 
-JMBAG:
+JMBAG: 0246115897
 
-Oblik: Redovan/Online
+Oblik: Online
 
-Jedna rečenica: što aplikacija radi i za koju zajednicu.
+Jedna rečenica: Blockchain aplikacija koja suvlasnicima stambene zgrade omogućuje sigurno, transparentno i pseudonimno glasanje o prijedlozima za uređenje i korištenje zajedničkih prostora.
+
+
+node 24.12.0
+git version 2.54.0 (Apple Git-157)

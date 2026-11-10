@@ -1,9 +1,9 @@
 # Pravila projekta
 
 ## Projekt
-- Naziv: (upiši)
-- Zajednica: (upiši, npr. kafić "Kod Šime")
-- Opis: (jedna rečenica: što aplikacija radi i za koga)
+- Naziv: Decentralizirani sustav glasanja suvlasnika stambene zgrade
+- Zajednica: Suvlasnici stanova jedne stambene zgrade
+- Opis: Blockchain aplikacija koja suvlasnicima stambene zgrade omogućuje sigurno, transparentno i pseudonimno glasanje o prijedlozima za uređenje i korištenje zajedničkih prostora, uz sprječavanje dvostrukog glasanja i manipulacije rezultatima.
 
 ## Stack (koristi točno ove verzije)
 - Frontend: Vue 3 (script setup), Pinia, Vite, u mapi frontend/
