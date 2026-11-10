@@ -21,4 +21,9 @@
 - Provjera:
 - Commit: 10.11.26.
 
+## T2 — AI intervju i specifikacija (10.11.)
+dopunio datoteku docs/SPEC.md za projekt . Definirao sam pravila neprenosivog tokena Stan (STN), glasačko pravo po stanu te ovlasti suvlasnika i predstavnika.
 
+Opisao sam predlaganje projekata, odabir najviše tri prioriteta, dodatno glasanje kod izjednačenja i konačno glasanje ZA/PROTIV uz prag prihvaćanja od najmanje 51% svih stanova. Definirao sam automatski završetak glasanja i nemogućnost promjene predanog glasa.
+
+Dodana je matrica ovlasti, opis podataka na blockchainu i 23 kriterija prihvaćanja u obliku Zadano/Kada/Tada, uključujući 12 neuspješnih slučajeva s porukama greške bez dijakritike. Neriješene odluke navedene su u odjeljku „Otvorena pitanja”. Izmijenjena je samo specifikacija, bez pisanja programskog koda.
