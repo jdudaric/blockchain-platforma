@@ -1,0 +1,24 @@
+{
+  "name": "stan-token",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "5.4.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "4.2.2",
+    "@nomicfoundation/hardhat-mocha": "3.1.0",
+    "@types/mocha": "10.0.10",
+    "@types/node": "24.19.2",
+    "ethers": "6.17.0",
+    "hardhat": "3.21.2",
+    "mocha": "11.8.0",
+    "typescript": "5.9.3"
+  }
+}

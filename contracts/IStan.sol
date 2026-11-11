@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 // Samo deklaracije. Pravila i značenje rezultata definirani su u docs/SPEC.md.
-interface IStanToken {
-    event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(address indexed owner, address indexed spender, uint256 value);
+interface IStanToken is IERC20 {
+    // Transfer i Approval naslijeđeni su iz IERC20 bez promjene potpisa.
     event ApartmentAssigned(uint256 indexed apartmentId, address indexed owner);
     event ApartmentRevoked(uint256 indexed apartmentId, address indexed previousOwner);
     event DeputyChanged(address indexed previousDeputy, address indexed newDeputy);

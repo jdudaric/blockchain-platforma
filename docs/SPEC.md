@@ -43,7 +43,7 @@ Glasanje je pseudonimno: na lancu se koriste adrese novčanika, ali javne transa
 
 ## Funkcije
 
-Ovo je funkcionalni opis; točni potpisi definirani su u odjeljku „Sučelja ugovora — Etapa 4”. Navedene poruke greške su točni tekstovi bez dijakritike. Kod više istodobnih grešaka redoslijed provjera tek treba odrediti; kriteriji pojedinu grešku provjeravaju uz ostale valjane uvjete.
+Ovo je funkcionalni opis; točni potpisi definirani su u odjeljku „Sučelja ugovora — Etapa 4”. Navedene poruke greške su točni tekstovi bez dijakritike. Kod više istodobnih grešaka redoslijed provjera tokena definiran je u Dijelu 5; redoslijed provjera modula ostaje otvoren. Kriteriji pojedinu grešku provjeravaju uz ostale valjane uvjete.
 
 | Funkcija | Tko je smije pozvati | Ulazni podaci | Učinak | Neuspjeh i točna poruka |
 | --- | --- | --- | --- | --- |
@@ -165,25 +165,25 @@ Svaki kriterij pretpostavlja da su svi uvjeti koji nisu predmet provjere valjani
 - Plaćanja, prikupljanje sredstava, izvršenje radova i raspodjela novca.
 - Potpuna anonimnost, kriptografski tajno glasanje i skrivanje javnih transakcija.
 - Automatska provjera stvarnog vlasništva preko službenih registara.
-- Implementacija ugovora u ovom koraku; Etapa 4 sada uključuje deklaracije sučelja. Testovi ponašanja slijede uz implementaciju, kada postoje izvršive funkcije. Tehnološki okvir iz AGENTS.md ostaje Vue 3 (script setup), Pinia, Vite; od T4 Solidity ^0.8.24, OpenZeppelin Contracts 5.x, Hardhat 3 (ESM, TypeScript), Mocha i ethers v6; mreža Sepolia, chainId 11155111.
+- Implementacija modula glasanja u Dijelu 5; u ovom koraku implementira se samo token i njegova administracija uz testove. Integracijski testovi stvarnog glasanja slijede s modulom. Tehnološki okvir iz AGENTS.md ostaje Vue 3 (script setup), Pinia, Vite; od T4 Solidity ^0.8.24, OpenZeppelin Contracts 5.x, Hardhat 3 (ESM, TypeScript), Mocha i ethers v6; mreža Sepolia, chainId 11155111.
 
 ## Otvorena pitanja
 
 Potvrđene odluke iz revizije više se ne smatraju otvorenima. Preostaje precizirati:
 
-1. Tko izvan lanca potvrđuje sadržaj fiksnog registra 25 stanova? Prvi predstavnik i zamjenik zadaju se pri postavljanju ugovora; nakon preuzimanja zamjenika imenuje novi predstavnik. Detalji zaštite pri promjeni zamjenika dok traje preuzimanje i pri dobrovoljnom prijenosu uloge ostaju za razradu prije implementacije.
+1. Tko izvan lanca potvrđuje sadržaj fiksnog registra 25 stanova? Prvi predstavnik i zamjenik zadaju se pri postavljanju ugovora; nakon preuzimanja zamjenika imenuje novi predstavnik. Pravila promjene zamjenika i dobrovoljnog prijenosa potvrđena su u odjeljku „Dio 5 — potvrđene odluke implementacije tokena”.
 2. Kako se između više stvarnih suvlasnika istog stana izvan lanca bira ovlaštena adresa te kako predstavnik dokumentira provjeru promjene vlasnika? Na blockchainu pravo ostaje jedno po stanu.
 3. Ako nakon odbijanja posljednjeg projekta više nema kandidata, završava li ciklus bez prihvaćenog projekta? Preklapanje aktivnih i zakazanih krugova nije dopušteno; istodobno postoji najviše jedan nezavršen ciklus.
 4. Može li se projekt s aktivnom 90-dnevnom zabranom ponovno uključiti u glasanje prioriteta, iako ne smije u konačni ZA/PROTIV prije isteka zabrane?
 5. Kako se tehnički uređuju/povlače prijedlozi i kada prijedlog prestaje biti „aktivan”? Naslov i opis pohranjuju se na lancu. Kako se obrađuju prilozi i broje znakovi (UTF-8 bajtovi ili Unicode znakovi)?
-6. Koji se ostali podaci, osim rezultata i evidencije neglasača, prikazuju posjetitelju aplikacije, tko održava privatnu evidenciju identiteta i kojim redoslijedom se provjeravaju istodobne greške?
+6. Koji se ostali podaci, osim rezultata i evidencije neglasača, prikazuju posjetitelju aplikacije, tko održava privatnu evidenciju identiteta i kojim redoslijedom se provjeravaju istodobne greške modula? Redoslijed za token potvrđen je u Dijelu 5.
 7. Treba li definirati maksimalno trajanje dodatnih ponavljanja izjednačenja, iako je poslovno pravilo ponavljati do pobjednika? Oporavak uz zamjenika i čekanje ne dokazuje stvarni gubitak ključa.
 
 ## Sučelja ugovora — Etapa 4
 
 Dopuna prema odgovorima korisnika u nastavku razgovora 11. 11. 2026. Nazivi, tipovi i administracija potvrđeni su u razgovoru; završni tehnički oblik rezultata i događaja prihvaćen je korisnikovim prepuštanjem tehničke procjene AI-ju. Ova dopuna zatvara pitanja o potpisima za korake 9 i 10 vježbe, a ne sve odluke buduće implementacije.
 
-- Datoteka: `contracts/IStan.sol`; `pragma solidity ^0.8.24`; sučelja `IStanToken` i `IStanModul`, bez implementacije i dodatnih biblioteka.
+- Datoteka: `contracts/IStan.sol`; `pragma solidity ^0.8.24`; sučelja `IStanToken` i `IStanModul`, bez implementacije. U Dijelu 5 IStanToken nasljeđuje OpenZeppelin IERC20 radi zajedničkih standardnih događaja.
 - Identifikatori i vremenske oznake koriste `uint256`, adrese `address`, naslov/opis `string`. Vrijeme je Unix vrijeme u sekundama. Novi ID prijedloga i kruga vraća funkcija koja ih stvara; ID postupka preuzimanja predaje pozivatelj.
 - N je fiksnih 25, prag je 13 ZA (zaokruživanje 12,75 naviše). K15 i K17 usklađeni su s ovom zgradom umjesto ranijih primjera s 10 stanova.
 - `choice` je `uint8`: 0 = PROTIV, 1 = ZA; ostalo se odbija s `Neispravan glas`. Dodatni krug prima niz radi provjere K14, ali prihvaća točno jedan izbor.
@@ -348,3 +348,53 @@ Izvori su korisnikov zahtjev za nastavak razgovora **„BA projekt VJEŽBE”** 
 | Rokovi, svi prijedlozi, limiti, 90 dana | Odluke o modulu; Funkcije | K32–K36 |
 | Zamjenik i pseudonimnost | Korisnici i uloge; Funkcije | K37–K38 |
 | Neriješene odluke ostaju vidljive | Otvorena pitanja | Ručni pregled prije implementacije |
+
+
+## Dio 5 — potvrđene odluke implementacije tokena
+
+Odluke je korisnik izričito potvrdio u nastavku razgovora 11. 11. 2026., prije implementacije. Ovaj odjeljak dopunjuje ranije potpise i razrješava otvorena pitanja tokena; ne implementira IStanModul.
+
+### Registar, izdavanje i konstruktor
+
+- Postoje točno stanovi s ID-evima 1–25. Početna količina STN je 0; nema početne dodjele ni preminta.
+- `constructor(address initialDeputy)` koristi `ERC20("Stan", "STN")` i `Ownable(msg.sender)`. Postavljač je prvi predstavnik. Početni zamjenik mora biti nenulta adresa različita od predstavnika.
+- Dodjela izdaje 1 STN, oduzimanje uništava 1 STN. Jedna adresa može imati više prava; ukupno najviše 25 aktivnih prava. `decimals()` vraća 0.
+- Implementacija je `contracts/Stan.sol`, Solidity ^0.8.24, OpenZeppelin Contracts 5.x, s importima `@openzeppelin/contracts/...`.
+- Radi kompatibilnog nasljeđivanja s ERC20, IStanToken nasljeđuje IERC20. Događaji Transfer i Approval preuzimaju se iz tog zajedničkog sučelja umjesto dvostruke deklaracije. Svi dogovoreni potpisi i događaji ostaju isti; IStanModul nije promijenjen.
+
+### Uloge i administracija
+
+- `owner()` i `representative()` uvijek vraćaju istu adresu. `transferOwnership` i `transferRepresentative` imaju iste ovlasti, provjere i učinak. Naslijeđeni `renounceOwnership` odbija odricanje.
+- Zamjenik je obvezan pri postavljanju i pri imenovanju kroz `setDeputy`; mora biti različit od predstavnika. Nije dopušteno imenovati nultu adresu ili ponovno istog zamjenika, niti prenijeti predstavništvo na nultu adresu ili samoga sebe.
+- Iznimka: nakon preuzimanja ili dobrovoljnog prijenosa na sadašnjeg zamjenika mjesto zamjenika postaje prazno. Novi predstavnik zatim imenuje drugog zamjenika. Prijenos na treću adresu zadržava sadašnjeg zamjenika.
+- Uspješna promjena zamjenika ili predstavnika automatski otkazuje aktivan zahtjev za preuzimanje, i nakon sedam dana ako preuzimanje još nije dovršeno. Odbijena promjena ne otkazuje zahtjev.
+- Svaki postupak preuzimanja koristi jedinstven ID veći od 0. Jednom korišten ID ne može se ponovno koristiti ni nakon otkazivanja ni dovršetka; ID-evi ne moraju biti uzastopni.
+- Istodobno može postojati jedan zahtjev. Samo zamjenik ga pokreće i dovršava, a samo predstavnik izravno otkazuje.
+- Čekanje traje točno `7 days` od pokretanja. Izravno otkazivanje dopušteno je samo za `block.timestamp < executableAt`; dovršetak za `block.timestamp >= executableAt`.
+- Dovršetak prazni zahtjev i mjesto zamjenika te prenosi vlasništvo i predstavništvo. Dovršetak ne emitira TakeoverCancelled.
+- Standardni Ownable događaj OwnershipTransferred prati promjene vlasništva uz RepresentativeChanged. Početno postavljanje također bilježi početnog predstavnika i zamjenika.
+
+### Dodatne poruke grešaka i redoslijed
+
+| Uvjet | Točna poruka |
+| --- | --- |
+| Neovlaštena predstavnička radnja, uključujući Ownable prijenos i odricanje | `Samo predstavnik` |
+| Neovlašteno pokretanje ili dovršetak preuzimanja | `Samo zamjenik` |
+| Nulta ili nedopušteno ista adresa uloge | `Neispravna adresa` |
+| Odricanje predstavnika | `Odricanje nije dopusteno` |
+| ID novog postupka je 0 | `Neispravan ID preuzimanja` |
+| ID novog postupka već je korišten | `ID preuzimanja je iskoristen` |
+| Već postoji aktivan zahtjev | `Preuzimanje je pokrenuto` |
+| Otkazivanje ili dovršetak za neaktivan/pogrešan ID, uključujući 0 | `Nema preuzimanja` |
+| Dovršetak prije isteka čekanja | `Cekanje nije zavrseno` |
+| Izravno otkazivanje na isteku čekanja ili poslije | `Rok za otkazivanje je istekao` |
+
+Prvo se provjerava ovlast, zatim stanje postupka ili glasanja, pa ulazni podaci. Pri dodjeli/oduzimanju slijede provjera aktivnog kruga, postojanja stana i njegova prava; pri dodjeli zatim nenulta adresa. Pri pokretanju preuzimanja slijede odsutnost aktivnog zahtjeva, ID veći od 0 i neiskorištenost ID-a. Pri otkazivanju/dovršetku provjerava se odgovarajući aktivni ID, zatim vrijeme. Svi odbijeni pozivi zadržavaju prethodno stanje i ne ostavljaju događaje.
+
+### Budući modul i testiranje
+
+- Token ima unutarnju nadogradivu provjeru `_isRoundActive()`. U ovoj verziji vraća false jer glasanje još ne postoji; budući modul mora je nadograditi stvarnim stanjem kruga. Dodjela i oduzimanje već koriste poruku K25.
+- Testni pomoćni ugovor simulira aktivnost kruga za provjeru blokade K25. To nije implementacija glasanja niti dokaz potpune integracije s modulom.
+- K5, K6, K24 i K26 u dijelu stvarnih glasova i povijesti ostaju za integracijske testove modula. Prag 13 ZA nije logika tokena.
+- Dopuštene su samo javne funkcije IStanToken i obvezne naslijeđene/override funkcije ERC20 i Ownable. Testni pomoćni ugovor nije ugovor za postavljanje na mrežu.
+- Korisnik je odobrio minimalne alate: Hardhat 3 (ESM, TypeScript), Mocha, ethers v6 i OpenZeppelin Contracts 5.x, uz nužne dodatke i tipove. Testiraju se uspješni i neuspješni slučajevi radnji. Funkcije koje uvijek odbijaju poziv nemaju uspješan slučaj, a bezuvjetna čitanja nemaju namjerno neuspješan slučaj.
