@@ -43,7 +43,7 @@ Glasanje je pseudonimno: na lancu se koriste adrese novčanika, ali javne transa
 
 ## Funkcije
 
-Ovo je funkcionalni opis, bez programskog koda i bez konačnih potpisa funkcija. Navedene poruke greške su točni tekstovi bez dijakritike. Kod više istodobnih grešaka redoslijed provjera tek treba odrediti; kriteriji pojedinu grešku provjeravaju uz ostale valjane uvjete.
+Ovo je funkcionalni opis; točni potpisi definirani su u odjeljku „Sučelja ugovora — Etapa 4”. Navedene poruke greške su točni tekstovi bez dijakritike. Kod više istodobnih grešaka redoslijed provjera tek treba odrediti; kriteriji pojedinu grešku provjeravaju uz ostale valjane uvjete.
 
 | Funkcija | Tko je smije pozvati | Ulazni podaci | Učinak | Neuspjeh i točna poruka |
 | --- | --- | --- | --- | --- |
@@ -82,7 +82,7 @@ Ovo je funkcionalni opis, bez programskog koda i bez konačnih potpisa funkcija.
 | Promijeniti ili povući predani glas | Ne | Ne | Ne |
 | Glasati nakon roka | Ne | Ne | Ne |
 | Vidjeti rezultate u aplikaciji prije roka | Ne | Ne | Ne |
-| Vidjeti rezultate u aplikaciji nakon roka | Nije odlučeno | Da | Da |
+| Vidjeti rezultate u aplikaciji nakon roka | Ne | Da | Da |
 | Vidjeti popis onih koji nisu glasali u aplikaciji | Ne | Ne | Da |
 | Mijenjati rok nakon pokretanja kruga | Ne | Ne | Ne |
 | Pokrenuti preuzimanje predstavničke uloge | Ne | Samo imenovani zamjenik | Ne (može dobrovoljno prenijeti ulogu) |
@@ -93,10 +93,10 @@ Ovo je funkcionalni opis, bez programskog koda i bez konačnih potpisa funkcija.
 
 Konceptualni model potreban za dogovorena pravila:
 
-- Uloga/adresa predstavnika i imenovanog zamjenika, zahtjev za preuzimanje, vrijeme pokretanja i status otkazivanja; inicijalno imenovanje ostaje otvoreno.
+- Uloga/adresa predstavnika i imenovanog zamjenika, zahtjev za preuzimanje, vrijeme pokretanja i status otkazivanja; prve adrese zadaju se pri postavljanju ugovora, a kasnije zamjenika imenuje predstavnik.
 - Fiksni registar **25 stanova (N = 25)** s tehničkim oznakama i vezom svakog stana s ovlaštenom adresom. Ne koristiti imena osoba kao oznake. Jedna adresa može biti povezana s više stanova.
 - ERC-20 metapodaci, stanja STN i evidencija aktivnog prava po stanu. Sam saldo adrese nije dovoljan za provjeru pravila „jedan glas po stanu”.
-- Prijedlog: identifikator, autorova adresa i stan, naslov/opis ili referenca na sadržaj, vrijeme podnošenja, status aktivnosti i pripadnost ciklusu. Ograničenje je najviše tri aktivna prijedloga po stanu. Točan smještaj sadržaja ostaje otvoren.
+- Prijedlog: identifikator, autorova adresa i stan, naslov i opis kao tekst na lancu, vrijeme podnošenja, status aktivnosti i pripadnost ciklusu. Ograničenje je najviše tri aktivna prijedloga po stanu. Naslov i opis pohranjuju se na lancu; prilozi nisu razrađeni.
 - Ciklus: identifikator, prijedlozi, rang-lista i status. Krug: identifikator, vrsta (prioriteti / dodatni krug / ZA-PROTIV), kandidati ili projekt, veza na ciklus i prethodni krug, početak i nepromjenjivi rok. Evidencija zadnjeg odbijanja po ID-u projekta za zabranu od 90 dana.
 - Evidencija je li stan glasao u određenom krugu; konačan izbor/odgovor i pripadajući zbrojevi potrebni za provjerljiv rezultat.
 - Fiksna osnovica N = 25 i izvedeni prag 13 ZA, neovisno o trenutačno dodijeljenim STN tokenima; povijesna evidencija glasa po stanu ne mijenja se pri naknadnoj promjeni vlasnika.
@@ -127,9 +127,9 @@ Svaki kriterij pretpostavlja da su svi uvjeti koji nisu predmet provjere valjani
 - **K12 — Konačnost glasa (neuspjeh):** **Zadano** je da je stan predao glas u tekućem krugu. **Kada** ponovno glasa, mijenja odgovor ili pokušava dopuniti prioritete. **Tada** zahtjev pada s `Stan je vec glasao`, a prvi odabir ostaje nepromijenjen.
 - **K13 — Izjednačenje:** **Zadano** je da je završeni krug prioriteta izjednačen. **Kada** predstavnik pokrene dodatni krug. **Tada** kandidati su izjednačeni prijedlozi i svaki stan smije odabrati samo jedan.
 - **K14 — Više izbora u dodatnom krugu (neuspjeh):** **Zadano** je da traje dodatni krug. **Kada** stan pokuša odabrati dva prijedloga. **Tada** zahtjev pada s `Odaberite jedan prijedlog`.
-- **K15 — Prag prihvaćanja:** **Zadano** je da zgrada ima 10 stanova i završilo je ZA/PROTIV. **Kada** postoji 6 glasova ZA. **Tada** projekt je prihvaćen; pri 5 glasova ZA projekt je odbijen, čak i ako nitko nije glasao PROTIV.
+- **K15 — Prag prihvaćanja:** **Zadano** je da zgrada ima 25 stanova i završilo je ZA/PROTIV. **Kada** postoji 13 glasova ZA. **Tada** projekt je prihvaćen; pri 12 glasova ZA projekt je odbijen, čak i ako nitko nije glasao PROTIV.
 - **K16 — Bez sudjelovanja:** **Zadano** je da traje ZA/PROTIV. **Kada** rok istekne bez ijednog glasa. **Tada** sudjelovanje je 0, broj ZA je 0 i projekt je odbijen.
-- **K17 — Neglasanje:** **Zadano** je da zgrada ima 10 stanova, od kojih 4 nisu glasala. **Kada** se izračuna ishod ZA/PROTIV. **Tada** osnovica ostaje 10, a četiri neglasanja ne povećavaju ni ZA ni PROTIV.
+- **K17 — Neglasanje:** **Zadano** je da zgrada ima 25 stanova, od kojih 4 nisu glasala. **Kada** se izračuna ishod ZA/PROTIV. **Tada** osnovica ostaje 25, a četiri neglasanja ne povećavaju ni ZA ni PROTIV.
 - **K18 — Rok (neuspjeh):** **Zadano** je da je dosegnut ili prošao rok. **Kada** stan pokuša predati glas, iako predstavnik nije ručno zaključio krug. **Tada** zahtjev pada s `Glasanje je zavrseno`.
 - **K19 — Prije početka (neuspjeh):** **Zadano** je da početak kruga još nije nastupio. **Kada** stan pokuša glasati. **Tada** zahtjev pada s `Glasanje nije pocelo`.
 - **K20 — Bez prava (neuspjeh):** **Zadano** je da adresa nema pravo za zadani stan. **Kada** pokuša glasati za njega. **Tada** zahtjev pada s `Nema prava za stan`.
@@ -155,27 +155,179 @@ Svaki kriterij pretpostavlja da su svi uvjeti koji nisu predmet provjere valjani
 - **K37 — Zamjenik predstavnika:** **Zadano** je da je imenovan zamjenik. **Kada** pokrene preuzimanje. **Tada** ne dobiva ovlasti prije isteka 7 dana; ako predstavnik tijekom čekanja otkaže postupak, on se ne može završiti; nakon valjanog preuzimanja prethodna adresa gubi predstavničke ovlasti.
 - **K38 — Pseudonimnost:** **Zadano** je da krug traje. **Kada** korisnik pogleda rezultate u aplikaciji. **Tada** aplikacija ne prikazuje zbrojeve prije roka i upozorava da se transakcije i glasovi mogu čitati izravno s javnog lanca; ne obećava anonimnost.
 
+- **K39 — Administracija uloga:** **Zadano** je da su početne adrese predstavnika i zamjenika zadane pri postavljanju ugovora. **Kada** predstavnik imenuje zamjenika ili dobrovoljno prenese svoju ulogu. **Tada** odgovarajuća adresa uloge se ažurira, a prethodni predstavnik nakon prijenosa gubi ovlasti; poziv druge uloge se odbija. Nakon dovršenog preuzimanja zamjenik postaje predstavnik, a mjesto zamjenika ostaje prazno do novog imenovanja.
+- **K40 — Jedan ciklus i nepreklapanje:** **Zadano** je da postoji nezavršen ciklus. **Kada** predstavnik pokreće krug. **Tada** krug pripada tom ciklusu i ne preklapa se s aktivnim ili zakazanim krugom; pokušaj preklapanja se odbija. Prvi prioritetni krug otvara novi ciklus, a ponavljanje prioriteta bez glasova ostaje u istom ciklusu.
+- **K41 — Čitanje tokena:** **Zadano** je da je ugovor postavljen. **Kada** bilo koja adresa čita metapodatke, salda, dopuštenja ili vlasnika poznatog stana. **Tada** dobiva Stan / STN / 0 decimala, stvarni broj izdanih tokena i salda, dopuštenje prijenosa 0 te ovlaštenu adresu stana (nultu adresu ako pravo nije dodijeljeno). Nepoznat stan odbija se s `Stan ne postoji`.
+
 ## Izvan opsega
 
 - Više zgrada, glasanje po osobama ili suvlasničkim udjelima, trgovanje tokenima i delegiranje glasova.
 - Plaćanja, prikupljanje sredstava, izvršenje radova i raspodjela novca.
 - Potpuna anonimnost, kriptografski tajno glasanje i skrivanje javnih transakcija.
 - Automatska provjera stvarnog vlasništva preko službenih registara.
-- Pisanje koda i implementacija u ovom zadatku. Tehnološki okvir iz AGENTS.md ostaje Vue 3 (script setup), Pinia, Vite; od T4 Solidity ^0.8.24, OpenZeppelin Contracts 5.x, Hardhat 3 (ESM, TypeScript), Mocha i ethers v6; mreža Sepolia, chainId 11155111.
+- Implementacija ugovora u ovom koraku; Etapa 4 sada uključuje deklaracije sučelja. Testovi ponašanja slijede uz implementaciju, kada postoje izvršive funkcije. Tehnološki okvir iz AGENTS.md ostaje Vue 3 (script setup), Pinia, Vite; od T4 Solidity ^0.8.24, OpenZeppelin Contracts 5.x, Hardhat 3 (ESM, TypeScript), Mocha i ethers v6; mreža Sepolia, chainId 11155111.
 
 ## Otvorena pitanja
 
 Potvrđene odluke iz revizije više se ne smatraju otvorenima. Preostaje precizirati:
 
-1. Tko i kako pri inicijalnoj instalaciji potvrđuje fiksni registar 25 stanova i imenuje prvog predstavnika i zamjenika? Kako se nakon preuzimanja bira novi zamjenik?
+1. Tko izvan lanca potvrđuje sadržaj fiksnog registra 25 stanova? Prvi predstavnik i zamjenik zadaju se pri postavljanju ugovora; nakon preuzimanja zamjenika imenuje novi predstavnik. Detalji zaštite pri promjeni zamjenika dok traje preuzimanje i pri dobrovoljnom prijenosu uloge ostaju za razradu prije implementacije.
 2. Kako se između više stvarnih suvlasnika istog stana izvan lanca bira ovlaštena adresa te kako predstavnik dokumentira provjeru promjene vlasnika? Na blockchainu pravo ostaje jedno po stanu.
-3. Ako nakon odbijanja posljednjeg projekta više nema kandidata, završava li ciklus bez prihvaćenog projekta? Smiju li se aktivni i zakazani krugovi preklapati? (Nije još potvrđeno.)
+3. Ako nakon odbijanja posljednjeg projekta više nema kandidata, završava li ciklus bez prihvaćenog projekta? Preklapanje aktivnih i zakazanih krugova nije dopušteno; istodobno postoji najviše jedan nezavršen ciklus.
 4. Može li se projekt s aktivnom 90-dnevnom zabranom ponovno uključiti u glasanje prioriteta, iako ne smije u konačni ZA/PROTIV prije isteka zabrane?
-5. Kako se tehnički uređuju/povlače prijedlozi i kada prijedlog prestaje biti „aktivan”? Gdje se pohranjuju tekstovi i prilozi te kako se osigurava ograničenje znakova?
-6. Koji se podaci prikazuju posjetitelju aplikacije, tko održava privatnu evidenciju identiteta i kojim redoslijedom se provjeravaju istodobne greške?
+5. Kako se tehnički uređuju/povlače prijedlozi i kada prijedlog prestaje biti „aktivan”? Naslov i opis pohranjuju se na lancu. Kako se obrađuju prilozi i broje znakovi (UTF-8 bajtovi ili Unicode znakovi)?
+6. Koji se ostali podaci, osim rezultata i evidencije neglasača, prikazuju posjetitelju aplikacije, tko održava privatnu evidenciju identiteta i kojim redoslijedom se provjeravaju istodobne greške?
 7. Treba li definirati maksimalno trajanje dodatnih ponavljanja izjednačenja, iako je poslovno pravilo ponavljati do pobjednika? Oporavak uz zamjenika i čekanje ne dokazuje stvarni gubitak ključa.
 
+## Sučelja ugovora — Etapa 4
+
+Dopuna prema odgovorima korisnika u nastavku razgovora 11. 11. 2026. Nazivi, tipovi i administracija potvrđeni su u razgovoru; završni tehnički oblik rezultata i događaja prihvaćen je korisnikovim prepuštanjem tehničke procjene AI-ju. Ova dopuna zatvara pitanja o potpisima za korake 9 i 10 vježbe, a ne sve odluke buduće implementacije.
+
+- Datoteka: `contracts/IStan.sol`; `pragma solidity ^0.8.24`; sučelja `IStanToken` i `IStanModul`, bez implementacije i dodatnih biblioteka.
+- Identifikatori i vremenske oznake koriste `uint256`, adrese `address`, naslov/opis `string`. Vrijeme je Unix vrijeme u sekundama. Novi ID prijedloga i kruga vraća funkcija koja ih stvara; ID postupka preuzimanja predaje pozivatelj.
+- N je fiksnih 25, prag je 13 ZA (zaokruživanje 12,75 naviše). K15 i K17 usklađeni su s ovom zgradom umjesto ranijih primjera s 10 stanova.
+- `choice` je `uint8`: 0 = PROTIV, 1 = ZA; ostalo se odbija s `Neispravan glas`. Dodatni krug prima niz radi provjere K14, ali prihvaća točno jedan izbor.
+- Početne uloge postavljaju se pri instalaciji, izvan interfacea (interface nema konstruktor). Predstavnik poziva `setDeputy` i `transferRepresentative`. Nakon preuzimanja `deputy()` vraća nultu adresu do novog imenovanja.
+- Istodobno postoji najviše jedan nezavršen ciklus. Krugovi, uključujući zakazane, ne preklapaju se. Prvi prioritetni krug otvara ciklus; ponavljanje prioriteta bez glasova ostaje u istom ciklusu. Zato pozivi pokretanja ne primaju zaseban ID ciklusa.
+- Čitanje rezultata i neglasača koristi `view` funkcije ugovora. Rezultate nakon roka čita predstavnik ili adresa s barem jednim važećim pravom za stan; neglasače samo predstavnik. Te provjere nisu zaštita tajnosti javnog lanca. Ugovor vraća samo ID-eve stanova, a povezivanje s identitetom ostaje izvan lanca.
+- `transfer`, `approve` i `transferFrom` zadržavaju standardne ERC-20 potpise, ali uvijek odbijaju poziv s `Token nije prenosiv`, uključujući nulti iznos. `allowance` vraća 0.
+- Nema funkcije za promjenu roka, glasa ni obveznu finalizaciju. Uređivanje/povlačenje prijedloga zasad nema definiran potpis i nije dodano.
+
+### Točni potpisi funkcija
+
+Svaka deklaracija u sučelju ima komentar s ulogom i pripadajućim kriterijima. `calldata` označava ulazni tekst/niz, `memory` povratni tekst/niz/strukturu.
+
+#### IStanToken
+
+| Potpis | Ovlast | Kriteriji |
+| --- | --- | --- |
+| `name() external view returns (string memory)` | Svi (čitanje) | K41 |
+| `symbol() external view returns (string memory)` | Svi (čitanje) | K41 |
+| `decimals() external view returns (uint8)` | Svi (čitanje) | K1, K41 |
+| `totalSupply() external view returns (uint256)` | Svi (čitanje) | K1, K6, K35, K41 |
+| `balanceOf(address account) external view returns (uint256)` | Svi (čitanje) | K1, K5, K24, K41 |
+| `allowance(address owner, address spender) external view returns (uint256)` | Svi (čitanje) | K4, K41 |
+| `transfer(address to, uint256 value) external returns (bool)` | Nitko; poziv se odbija s Token nije prenosiv | K4 |
+| `approve(address spender, uint256 value) external returns (bool)` | Nitko; poziv se odbija s Token nije prenosiv | K4 |
+| `transferFrom(address from, address to, uint256 value) external returns (bool)` | Nitko; poziv se odbija s Token nije prenosiv | K4 |
+| `assignApartment(uint256 apartmentId, address owner) external` | Predstavnik | K1, K2, K3, K6, K24, K25, K26 |
+| `revokeApartment(uint256 apartmentId) external` | Predstavnik | K6, K25, K26 |
+| `ownerOfApartment(uint256 apartmentId) external view returns (address)` | Svi (čitanje) | K1, K6, K24, K41 |
+| `representative() external view returns (address)` | Svi (čitanje) | K37, K39 |
+| `deputy() external view returns (address)` | Svi (čitanje) | K37, K39 |
+| `setDeputy(address newDeputy) external` | Predstavnik | K39 |
+| `transferRepresentative(address newRepresentative) external` | Predstavnik | K39 |
+| `requestTakeover(uint256 takeoverId) external` | Zamjenik | K37 |
+| `cancelTakeover(uint256 takeoverId) external` | Predstavnik | K37 |
+| `completeTakeover(uint256 takeoverId) external` | Zamjenik | K37, K39 |
+
+#### IStanModul
+
+| Potpis | Ovlast | Kriteriji |
+| --- | --- | --- |
+| `submitProposal(uint256 apartmentId, string calldata title, string calldata description) external returns (uint256 proposalId)` | Suvlasnik s pravom za zadani stan; predstavnik i zamjenik samo uz isto pravo | K7, K34 |
+| `startPriorityRound(uint256[] calldata proposalIds, uint256 startTime, uint256 endTime) external returns (uint256 roundId)` | Predstavnik | K8, K23, K28, K32, K33, K40 |
+| `votePriorities(uint256 roundId, uint256 apartmentId, uint256[] calldata proposalIds) external` | Suvlasnik s pravom za zadani stan; predstavnik i zamjenik samo uz isto pravo | K5, K9, K10, K11, K12, K18, K19, K20, K24, K27 |
+| `startTieBreakRound(uint256 previousRoundId, uint256[] calldata proposalIds, uint256 startTime, uint256 endTime) external returns (uint256 roundId)` | Predstavnik | K8, K13, K23, K28, K29, K32, K40 |
+| `voteTieBreak(uint256 roundId, uint256 apartmentId, uint256[] calldata proposalIds) external` | Suvlasnik s pravom za zadani stan; predstavnik i zamjenik samo uz isto pravo | K5, K12, K13, K14, K18, K19, K20, K24, K27, K29 |
+| `startApprovalRound(uint256 proposalId, uint256 startTime, uint256 endTime) external returns (uint256 roundId)` | Predstavnik | K8, K23, K28, K30, K31, K32, K36, K40 |
+| `voteApproval(uint256 roundId, uint256 apartmentId, uint8 choice) external` | Suvlasnik s pravom za zadani stan; predstavnik i zamjenik samo uz isto pravo | K5, K12, K18, K19, K20, K24, K27, K35 |
+| `getRoundResults(uint256 roundId) external view returns (RoundResults memory results)` | Predstavnik ili adresa s barem jednim važećim pravom za stan; tek nakon roka | K15, K16, K17, K21, K26, K27, K28, K29, K30, K31, K35, K38 |
+| `getNonVoters(uint256 roundId) external view returns (uint256[] memory apartmentIds)` | Predstavnik | K22 |
+
+### Tip rezultata
+
+Tipovi pripadaju `IStanModul`; redoslijed enum vrijednosti počinje od 0.
+
+```solidity
+    enum RoundType { Priority, TieBreak, Approval }
+    enum RoundOutcome { NoVotes, Tied, WinnerSelected, Accepted, Rejected }
+
+    struct RoundResults {
+        RoundType roundType;
+        RoundOutcome outcome;
+        uint256[] proposalIds;
+        uint256[] supportCounts;
+        uint256 participationCount;
+        uint256 votesFor;
+        uint256 votesAgainst;
+        uint256[] leadingProposalIds;
+    }
+```
+
+`participationCount` je broj stanova koji su predali glas, ne zbroj potpora. U prioritetnom i dodatnom krugu `proposalIds` i `supportCounts` imaju istu duljinu i odgovarajuće pozicije; projekti se vraćaju rangirani prema broju potpora, vremenu i ID-u, ali izjednačeni prvoplasirani i dalje zahtijevaju dodatni krug. `leadingProposalIds` sadrži jednog pobjednika ili sve izjednačene prvoplasirane. Bez glasova je prazan, uz ishod `NoVotes`. `votesFor` i `votesAgainst` u tim krugovima su 0.
+
+U ZA/PROTIV `proposalIds` sadrži jedan projekt, a `supportCounts` i `leadingProposalIds` su prazni. `votesFor` i `votesAgainst` su konačni zbrojevi. Ishod je `Accepted` za najmanje 13 ZA, inače `Rejected`, uključujući slučaj bez glasova. Rezultat se računa bez obvezne transakcije finalizacije.
+
+### Događaji
+
+Ovo je potpuni dogovoreni popis događaja sučelja. Parametri označeni `indexed` služe filtriranju zapisa.
+
+**IStanToken**
+
+```solidity
+event Transfer(address indexed from, address indexed to, uint256 value);
+event Approval(address indexed owner, address indexed spender, uint256 value);
+event ApartmentAssigned(uint256 indexed apartmentId, address indexed owner);
+event ApartmentRevoked(uint256 indexed apartmentId, address indexed previousOwner);
+event DeputyChanged(address indexed previousDeputy, address indexed newDeputy);
+event TakeoverRequested(uint256 indexed takeoverId, address indexed requester, uint256 executableAt);
+event TakeoverCancelled(uint256 indexed takeoverId);
+event RepresentativeChanged(address indexed previousRepresentative, address indexed newRepresentative);
+```
+
+**IStanModul**
+
+```solidity
+event ProposalSubmitted(uint256 indexed proposalId, uint256 indexed apartmentId, address indexed author);
+event RoundStarted(uint256 indexed roundId, RoundType roundType, uint256[] proposalIds, uint256 startTime, uint256 endTime);
+event PrioritiesSubmitted(uint256 indexed roundId, uint256 indexed apartmentId, uint256[] proposalIds);
+event TieBreakVoteSubmitted(uint256 indexed roundId, uint256 indexed apartmentId, uint256 indexed proposalId);
+event ApprovalVoteSubmitted(uint256 indexed roundId, uint256 indexed apartmentId, uint8 choice);
+```
+
+`Transfer` prati izdavanje i uništavanje STN uz nultu izvornu odnosno odredišnu adresu. `Approval` je standardna ERC-20 deklaracija, ali odbijeni `approve` ne ostavlja događaj. Ostali događaji prate uspješnu odgovarajuću radnju; `RepresentativeChanged` prati i dobrovoljni prijenos i dovršeno preuzimanje, a `DeputyChanged` i pražnjenje mjesta zamjenika. Odbijeni pozivi ne ostavljaju događaje. Nema obveznog događaja završetka jer sam protek vremena ne izvršava transakciju.
+
 ## Sljedivost
+
+### Funkcija | Kriteriji
+
+Tablica obuhvaća svih 28 funkcija iz `contracts/IStan.sol`. Oznake odgovaraju komentarima iznad deklaracija; svaki kriterij K1–K41 pojavljuje se barem jednom.
+
+| Funkcija | Kriteriji |
+| --- | --- |
+| `IStanToken.name()` | K41 |
+| `IStanToken.symbol()` | K41 |
+| `IStanToken.decimals()` | K1, K41 |
+| `IStanToken.totalSupply()` | K1, K6, K35, K41 |
+| `IStanToken.balanceOf()` | K1, K5, K24, K41 |
+| `IStanToken.allowance()` | K4, K41 |
+| `IStanToken.transfer()` | K4 |
+| `IStanToken.approve()` | K4 |
+| `IStanToken.transferFrom()` | K4 |
+| `IStanToken.assignApartment()` | K1, K2, K3, K6, K24, K25, K26 |
+| `IStanToken.revokeApartment()` | K6, K25, K26 |
+| `IStanToken.ownerOfApartment()` | K1, K6, K24, K41 |
+| `IStanToken.representative()` | K37, K39 |
+| `IStanToken.deputy()` | K37, K39 |
+| `IStanToken.setDeputy()` | K39 |
+| `IStanToken.transferRepresentative()` | K39 |
+| `IStanToken.requestTakeover()` | K37 |
+| `IStanToken.cancelTakeover()` | K37 |
+| `IStanToken.completeTakeover()` | K37, K39 |
+| `IStanModul.submitProposal()` | K7, K34 |
+| `IStanModul.startPriorityRound()` | K8, K23, K28, K32, K33, K40 |
+| `IStanModul.votePriorities()` | K5, K9, K10, K11, K12, K18, K19, K20, K24, K27 |
+| `IStanModul.startTieBreakRound()` | K8, K13, K23, K28, K29, K32, K40 |
+| `IStanModul.voteTieBreak()` | K5, K12, K13, K14, K18, K19, K20, K24, K27, K29 |
+| `IStanModul.startApprovalRound()` | K8, K23, K28, K30, K31, K32, K36, K40 |
+| `IStanModul.voteApproval()` | K5, K12, K18, K19, K20, K24, K27, K35 |
+| `IStanModul.getRoundResults()` | K15, K16, K17, K21, K26, K27, K28, K29, K30, K31, K35, K38 |
+| `IStanModul.getNonVoters()` | K22 |
+
+Povezanost s funkcijom ne znači da je ponašanje već implementirano ili testirano. K32 provjerava i da ne postoji put za naknadnu promjenu početka ili roka; zato se veže uz funkcije koje postavljaju te vrijednosti. K21 i K38 uz `getRoundResults` zahtijevaju i provjeru prikaza i upozorenja u aplikaciji. Početno imenovanje iz K39 provjerava se pri postavljanju buduće implementacije, jer sučelje nema konstruktor.
+
+### Izvori i odluke
 
 Izvori su korisnikov zahtjev za nastavak razgovora **„BA projekt VJEŽBE”** (6af33f8f-bf08-83ed-a578-7c457b38df1f), dostupni završni dio tog razgovora i lokalne upute AGENTS.md. Dostupan dohvat razgovora sadrži završne odluke o pokretanju, isteku roka, nultom sudjelovanju i konačnosti glasa te sažetak prethodnih odluka; za ostale detalje mjerodavan je izričit korisnikov zahtjev. Neriješeni detalji nisu predstavljeni kao ranije potvrđene odluke. Prihvaćeni nalazi recenzije i korisnikove naknadne potvrde iz razgovora uneseni su u ovu inačicu SPEC.md; odbijeni prijedlozi (potpuna anonimnost i prijenos starog ranga u novi ciklus) nisu uvedeni.
 

@@ -1,4 +1,4 @@
-# Naziv projekta
+# Decentralizirani sustav glasanja suvlasnika stambene zgrade
 
 Autor: Jakov Đudarić
 

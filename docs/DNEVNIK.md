@@ -43,3 +43,8 @@ Dodana je matrica ovlasti, opis podataka na blockchainu i 23 kriterija prihvaća
 | R7 – Ponovno izjednačenje projekata | Prihvaćeno | Ako se izjednačenje za prvo mjesto ponovi, održava se novi dodatni krug dok se ne dobije pobjednik. |
 | Z6 – Ponavljanje odbijenog projekta | Prihvaćeno | Isti projekt ne može ponovno na konačno glasanje 90 dana nakon odbijanja. |
 | Zadržavanje prioriteta u novom ciklusu | Odbijeno | Neobrađeni projekti ne zadržavaju prethodni rang. U novom ciklusu ponovno se određuju prioriteti. |
+
+## T3 — sucelje i sljedivost (11.11.)
+Danas sam radio na sučeljima pametnih ugovora. Razjasnio sam nedostatke u specifikaciji i dopunio docs/SPEC.md dogovorenim odlukama. Izrađena su dva Solidity sučelja, IStanToken za token, uloge i administraciju te IStanModul za glasanje, spremljena u contracts/IStan.sol. Sučelja koriste pragma solidity 0.8.24 i sadrže deklaracije funkcija i događaja, bez implementacije. Iznad svake funkcije navedene su ovlaštene uloge i pripadajući kriteriji prihvaćanja.
+
+Datoteku sam učitao u Remix i pokrenuo kompilaciju. U SPEC je dodana tablica sljedivosti koja povezuje svih 28 funkcija s kriterijima K1–K41. Provjereno je da svaki kriterij ima povezanu funkciju i da nema funkcije bez kriterija.
