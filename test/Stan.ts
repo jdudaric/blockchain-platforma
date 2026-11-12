@@ -5,7 +5,7 @@ import { Interface, ZeroAddress } from "ethers";
 
 const WEEK = 7 * 24 * 60 * 60;
 async function setup(contractName = "Stan") {
-  const connection = await network.create();
+  const connection = await network.connect();
   const { ethers } = connection;
   const [rep, deputy, alice, bob, other] = await ethers.getSigners();
   const token = await ethers.deployContract(contractName, [deputy.address]);
@@ -39,7 +39,7 @@ async function events(token: any, tx: any) {
 }
 
 describe("Stan — IStanToken", () => {
-  it("K39/K41: deploy, javna čitanja i prazna početna evidencija", async () => {
+  it("K41: deploy, javna čitanja i prazna početna evidencija", async () => {
     const {token, call, alice, rep, deputy} = await setup();
     assert.equal(await call(alice).name(), "Stan");
     assert.equal(await call(alice).symbol(), "STN");
@@ -58,12 +58,14 @@ describe("Stan — IStanToken", () => {
     for (const address of [ZeroAddress, rep.address])
       await fails(ethers.deployContract("Stan", [address]), "Neispravna adresa");
   });
-  it("K1/K6/K24: dodjela, više stanova, oduzimanje i novi vlasnik", async () => {
+  it("K1: dodjela, više stanova, oduzimanje i novi vlasnik", async () => {
     const {token, alice, bob} = await setup();
     const assigned = await events(token, await token.assignApartment(1, alice.address));
     assert.deepEqual(assigned.map((e: any) => e.name), ["Transfer", "ApartmentAssigned"]);
     assert.deepEqual([...assigned[0].args], [ZeroAddress, alice.address, 1n]);
     assert.deepEqual([...assigned[1].args], [1n, alice.address]);
+    assert.equal(await token.balanceOf(alice.address), 1n);
+    assert.equal(await token.decimals(), 0n);
     await token.assignApartment(25, alice.address);
     assert.equal(await token.balanceOf(alice.address), 2n);
     assert.equal(await token.totalSupply(), 2n);
@@ -78,7 +80,7 @@ describe("Stan — IStanToken", () => {
     assert.equal(await token.ownerOfApartment(1), bob.address);
     assert.equal(await token.balanceOf(bob.address), 1n);
   });
-  it("K2/K3: neovlašteni i dvostruki upisi ne mijenjaju stanje", async () => {
+  it("K2: neovlašteni i dvostruki upisi ne mijenjaju stanje", async () => {
     const {token, call, deputy, alice} = await setup();
     for (const caller of [deputy, alice]) {
       await fails(call(caller).assignApartment(1, alice.address), "Samo predstavnik");
@@ -90,7 +92,7 @@ describe("Stan — IStanToken", () => {
     assert.equal(await token.ownerOfApartment(1), alice.address);
     assert.equal((await token.queryFilter(token.filters.ApartmentAssigned())).length, 1);
   });
-  it("K1/K6/K41: granice registra, nulta adresa i stan bez prava", async () => {
+  it("K1: granice registra, nulta adresa i stan bez prava", async () => {
     const {token, alice} = await setup();
     for (const id of [0, 26]) {
       await fails(token.assignApartment(id, alice.address), "Stan ne postoji");
@@ -207,7 +209,7 @@ describe("Stan — IStanToken", () => {
     await at(end);
     await fails(token.cancelTakeover(1), "Rok za otkazivanje je istekao");
   });
-  it("K37/K39: dovršetak točno na isteku, prazni zamjenika i ukida stare ovlasti", async () => {
+  it("K37: dovršetak točno na isteku, prazni zamjenika i ukida stare ovlasti", async () => {
     const {token, call, deputy, rep, alice, request, at} = await setup();
     const end = await request();
     await at(end);
@@ -226,7 +228,7 @@ describe("Stan — IStanToken", () => {
   });
   for (const method of ["setDeputy", "transferRepresentative", "transferOwnership"]) {
     for (const expired of [false, true]) {
-      it(`K37/K39: ${method} otkazuje zahtjev ${expired ? "nakon" : "prije"} isteka`, async () => {
+      it(`K37: ${method} otkazuje zahtjev ${expired ? "nakon" : "prije"} isteka`, async () => {
         const {token, call, deputy, alice, request, at} = await setup();
         const end = await request();
         if (expired) await at(end + 1);
@@ -253,7 +255,7 @@ describe("Stan — IStanToken", () => {
     await token.revokeApartment(1);
     assert.equal(await token.totalSupply(), 0n);
   });
-  it("K1/K35: svih 25 prava izdaje točno 25 STN", async () => {
+  it("K1: svih 25 prava izdaje točno 25 STN", async () => {
     const {token, alice} = await setup();
     for (let id = 1; id <= 25; id++) await token.assignApartment(id, alice.address);
     assert.equal(await token.totalSupply(), 25n);
@@ -262,7 +264,7 @@ describe("Stan — IStanToken", () => {
     await fails(token.assignApartment(25, alice.address), "Stan vec ima token");
     assert.equal(await token.totalSupply(), 25n);
   });
-  it("K37/K39: odbijene promjene uloga ne otkazuju zahtjev", async () => {
+  it("K37: odbijene promjene uloga ne otkazuju zahtjev", async () => {
     const {token, rep, deputy, call, request, at} = await setup();
     const end = await request();
     await fails(token.setDeputy(deputy.address), "Neispravna adresa");
@@ -273,7 +275,7 @@ describe("Stan — IStanToken", () => {
     await call(deputy).completeTakeover(1);
     assert.equal(await token.owner(), deputy.address);
   });
-  it("ABI: nema modula ni dodatnih javnih funkcija osim Ownable", async () => {
+  it("K41: ABI tokena; token ima tocno funkcije IStanToken i naslijedjene Ownable funkcije", async () => {
     const token = new Interface((await artifacts.readArtifact("Stan")).abi);
     const required = new Interface((await artifacts.readArtifact("IStanToken")).abi);
     const signatures = (iface: Interface) => {
@@ -283,4 +285,14 @@ describe("Stan — IStanToken", () => {
     };
     assert.deepEqual(signatures(token), [...signatures(required), "owner()", "renounceOwnership()", "transferOwnership(address)"].sort());
   });
+  it("K3: neovlastena dodjela pada bez promjene prava i ukupnog salda", async () => {
+    const {token,call,alice,deputy} = await setup();
+    for (const signer of [alice,deputy])
+      await fails(call(signer).assignApartment(1,alice.address), "Samo predstavnik");
+    assert.equal(await token.ownerOfApartment(1),ZeroAddress);
+    assert.equal(await token.totalSupply(),0n);
+    assert.equal(await token.balanceOf(alice.address),0n);
+    assert.equal((await token.queryFilter(token.filters.ApartmentAssigned())).length,0);
+  });
+
 });

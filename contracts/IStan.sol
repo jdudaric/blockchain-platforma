@@ -13,6 +13,14 @@ interface IStanToken is IERC20 {
     event TakeoverCancelled(uint256 indexed takeoverId);
     event RepresentativeChanged(address indexed previousRepresentative, address indexed newRepresentative);
 
+    event VotingModuleLinked(address indexed module);
+
+    /// @notice Predstavnik: jednokratno povezuje modul s ovim tokenom. SPEC: K25.
+    function setVotingModule(address module) external;
+
+    /// @notice Svi: povezani modul ili nulta adresa prije povezivanja. SPEC: K25.
+    function votingModule() external view returns (address);
+
     /// @notice Uloga: Svi (čitanje). SPEC: K41.
     function name() external view returns (string memory);
 
@@ -72,6 +80,12 @@ interface IStanToken is IERC20 {
 }
 
 interface IStanModul {
+    /// @notice Svi: nepromjenjiva adresa tokena iz konstruktora. SPEC: K25.
+    function tokenAddress() external view returns (address);
+
+    /// @notice Svi: postoji li upravo aktivan krug (pocetak <= sada < rok). SPEC: K25, K27.
+    function isRoundActive() external view returns (bool);
+
     enum RoundType { Priority, TieBreak, Approval }
     enum RoundOutcome { NoVotes, Tied, WinnerSelected, Accepted, Rejected }
 

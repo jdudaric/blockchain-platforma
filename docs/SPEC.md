@@ -43,7 +43,7 @@ Glasanje je pseudonimno: na lancu se koriste adrese novčanika, ali javne transa
 
 ## Funkcije
 
-Ovo je funkcionalni opis; točni potpisi definirani su u odjeljku „Sučelja ugovora — Etapa 4”. Navedene poruke greške su točni tekstovi bez dijakritike. Kod više istodobnih grešaka redoslijed provjera tokena definiran je u Dijelu 5; redoslijed provjera modula ostaje otvoren. Kriteriji pojedinu grešku provjeravaju uz ostale valjane uvjete.
+Ovo je funkcionalni opis; točni potpisi definirani su u odjeljku „Sučelja ugovora — Etapa 4”. Navedene poruke greške su točni tekstovi bez dijakritike. Kod više istodobnih grešaka redoslijed provjera tokena definiran je u Dijelu 5; redoslijed provjera modula definiran je u odjeljku „Dio 6”. Kriteriji pojedinu grešku provjeravaju uz ostale valjane uvjete.
 
 | Funkcija | Tko je smije pozvati | Ulazni podaci | Učinak | Neuspjeh i točna poruka |
 | --- | --- | --- | --- | --- |
@@ -147,7 +147,7 @@ Svaki kriterij pretpostavlja da su svi uvjeti koji nisu predmet provjere valjani
 - **K29 — Ponovljeno izjednačenje:** **Zadano** je da dodatni krug opet završava izjednačenjem za prvo mjesto. **Kada** predstavnik pokrene novi dodatni krug. **Tada** kandidati su samo ponovno izjednačeni prijedlozi, svaki stan ima jedan glas, a nijedan projekt još nije određen kao pobjednik.
 - **K30 — Odbijen pa sljedeći:** **Zadano** je da prvi projekt nema potreban broj ZA. **Kada** završi njegov krug. **Tada** rezultat je odbijen i sljedeći raspoloživi projekt na rang-listi postaje kandidat za zasebni ZA/PROTIV.
 - **K31 — Prihvaćen projekt završava ciklus:** **Zadano** je da je projekt prihvaćen. **Kada** predstavnik pokuša u istom ciklusu pokrenuti ZA/PROTIV za drugi projekt. **Tada** zahtjev se odbija; neobrađeni prijedlozi mogu sudjelovati u novom ciklusu samo uz novo određivanje prioriteta.
-- **K32 — Nepromjenjiv rok:** **Zadano** je da je krug pokrenut. **Kada** bilo koji korisnik, uključujući predstavnika, pokuša izmijeniti početak ili rok. **Tada** nijedna izmjena nije dopuštena. Krug od 7 dana, odnosno dodatni krug od 3 dana, završava na unaprijed zadanom roku.
+- **K32 — Nepromjenjiv rok:** **Zadano** je da je krug pokrenut. **Kada** bilo koji korisnik, uključujući predstavnika, pokuša izmijeniti početak ili rok. **Tada** nijedna izmjena nije dopuštena. Krug završava na unaprijed zadanom roku; 7 dana odnosno 3 dana preporučene su zadane vrijednosti aplikacije, a ne obvezno trajanje ugovora.
 - **K33 — Svi prijedlozi:** **Zadano** je da ciklus sadrži valjane prijedloge A, B i C. **Kada** predstavnik pokrene prioritete. **Tada** svi A, B i C ulaze u popis kandidata; podskup koji proizvoljno izostavlja valjani prijedlog nije dopušten.
 - **K34 — Ograničenje prijedloga:** **Zadano** je da stan već ima tri aktivna prijedloga. **Kada** pokuša poslati četvrti. **Tada** zahtjev pada s `Previse aktivnih prijedloga`. Naslov iznad 100 znakova ili opis iznad 1000 znakova pada s `Predug prijedlog`.
 - **K35 — 25 stanova:** **Zadano** je N = 25. **Kada** završi ZA/PROTIV. **Tada** 12 ZA znači odbijanje, a 13 ZA znači prihvaćanje, neovisno o broju glasova PROTIV i broju nedodijeljenih STN.
@@ -173,11 +173,11 @@ Potvrđene odluke iz revizije više se ne smatraju otvorenima. Preostaje precizi
 
 1. Tko izvan lanca potvrđuje sadržaj fiksnog registra 25 stanova? Prvi predstavnik i zamjenik zadaju se pri postavljanju ugovora; nakon preuzimanja zamjenika imenuje novi predstavnik. Pravila promjene zamjenika i dobrovoljnog prijenosa potvrđena su u odjeljku „Dio 5 — potvrđene odluke implementacije tokena”.
 2. Kako se između više stvarnih suvlasnika istog stana izvan lanca bira ovlaštena adresa te kako predstavnik dokumentira provjeru promjene vlasnika? Na blockchainu pravo ostaje jedno po stanu.
-3. Ako nakon odbijanja posljednjeg projekta više nema kandidata, završava li ciklus bez prihvaćenog projekta? Preklapanje aktivnih i zakazanih krugova nije dopušteno; istodobno postoji najviše jedan nezavršen ciklus.
-4. Može li se projekt s aktivnom 90-dnevnom zabranom ponovno uključiti u glasanje prioriteta, iako ne smije u konačni ZA/PROTIV prije isteka zabrane?
-5. Kako se tehnički uređuju/povlače prijedlozi i kada prijedlog prestaje biti „aktivan”? Naslov i opis pohranjuju se na lancu. Kako se obrađuju prilozi i broje znakovi (UTF-8 bajtovi ili Unicode znakovi)?
-6. Koji se ostali podaci, osim rezultata i evidencije neglasača, prikazuju posjetitelju aplikacije, tko održava privatnu evidenciju identiteta i kojim redoslijedom se provjeravaju istodobne greške modula? Redoslijed za token potvrđen je u Dijelu 5.
-7. Treba li definirati maksimalno trajanje dodatnih ponavljanja izjednačenja, iako je poslovno pravilo ponavljati do pobjednika? Oporavak uz zamjenika i čekanje ne dokazuje stvarni gubitak ključa.
+3. Zatvoreno u Dijelu 6: nakon posljednjeg odbijanja ciklus završava bez prihvaćenog projekta.
+4. Zatvoreno u Dijelu 6: projekt pod zabranom ne ulazi u novi ciklus prioriteta.
+5. Zatvoreno u Dijelu 6: nema uređivanja/povlačenja; prihvaćanje oslobađa mjesto, odbijeni i neobrađeni ostaju aktivni; broje se Unicode skalarne vrijednosti. Prilozi nisu dio sadašnjeg sučelja.
+6. Koji se ostali podaci, osim rezultata i evidencije neglasača, prikazuju posjetitelju aplikacije, tko održava privatnu evidenciju identiteta? Redoslijed provjera tokena potvrđen je u Dijelu 5, a modula u Dijelu 6.
+7. Dodatni krugovi ponavljaju se do pobjednika prema postojećoj odluci 4, bez uvedenog ograničenja broja ponavljanja. Oporavak uz zamjenika i čekanje ne dokazuje stvarni gubitak ključa.
 
 ## Sučelja ugovora — Etapa 4
 
@@ -261,7 +261,7 @@ U ZA/PROTIV `proposalIds` sadrži jedan projekt, a `supportCounts` i `leadingPro
 
 ### Događaji
 
-Ovo je potpuni dogovoreni popis događaja sučelja. Parametri označeni `indexed` služe filtriranju zapisa.
+Ovo je prvotni dogovoreni popis događaja sučelja; Dopuna u Dijelu 6 dodaje VotingModuleLinked. Parametri označeni `indexed` služe filtriranju zapisa.
 
 **IStanToken**
 
@@ -292,7 +292,7 @@ event ApprovalVoteSubmitted(uint256 indexed roundId, uint256 indexed apartmentId
 
 ### Funkcija | Kriteriji
 
-Tablica obuhvaća svih 28 funkcija iz `contracts/IStan.sol`. Oznake odgovaraju komentarima iznad deklaracija; svaki kriterij K1–K41 pojavljuje se barem jednom.
+Tablica obuhvaća prvotnih 28 funkcija iz `contracts/IStan.sol`. Četiri funkcije povezivanja dopunjene su u Dijelu 6. Oznake odgovaraju komentarima iznad deklaracija; svaki kriterij K1–K41 pojavljuje se barem jednom.
 
 | Funkcija | Kriteriji |
 | --- | --- |
@@ -326,6 +326,89 @@ Tablica obuhvaća svih 28 funkcija iz `contracts/IStan.sol`. Oznake odgovaraju k
 | `IStanModul.getNonVoters()` | K22 |
 
 Povezanost s funkcijom ne znači da je ponašanje već implementirano ili testirano. K32 provjerava i da ne postoji put za naknadnu promjenu početka ili roka; zato se veže uz funkcije koje postavljaju te vrijednosti. K21 i K38 uz `getRoundResults` zahtijevaju i provjeru prikaza i upozorenja u aplikaciji. Početno imenovanje iz K39 provjerava se pri postavljanju buduće implementacije, jer sučelje nema konstruktor.
+
+### Kriterij | Test | Datoteka | Status
+
+Tablica povezuje svaki kriterij K1–K41 sa stvarnim nazivima testova u mapi `test/`. Navedene su sve varijante parametriziranih testova, s nazivima kakvi se ispisuju pri pokretanju. Kriterij u prvom stupcu primarni je kriterij testa; pojedini integracijski test dodatno provjerava i povezane kriterije.
+
+Statusi se temelje na posljednjem lokalnom pokretanju `npx hardhat test` od 12. 11. 2026.: **69 izvršenih testova prošlo je, a 1 je preskočen (`pending`)**. Naknadno je provjereno podudaranje naziva s aktualnim testnim datotekama. Ova dopuna SPEC-a nije novo pokretanje testova.
+
+| Kriterij | Točan naziv testa | Datoteka | Status |
+| --- | --- | --- | --- |
+| K1 | `K1: dodjela, više stanova, oduzimanje i novi vlasnik` | `test/Stan.ts` | Prošao |
+| K1 | `K1: granice registra, nulta adresa i stan bez prava` | `test/Stan.ts` | Prošao |
+| K1 | `K1: svih 25 prava izdaje točno 25 STN` | `test/Stan.ts` | Prošao |
+| K2 | `K2: neovlašteni i dvostruki upisi ne mijenjaju stanje` | `test/Stan.ts` | Prošao |
+| K3 | `K3: neovlastena dodjela pada bez promjene prava i ukupnog salda` | `test/Stan.ts` | Prošao |
+| K4 | `K4: transfer, approve i transferFrom odbijaju iznos 0` | `test/Stan.ts` | Prošao |
+| K4 | `K4: transfer, approve i transferFrom odbijaju iznos 1` | `test/Stan.ts` | Prošao |
+| K4 | `K4: transfer, approve i transferFrom odbijaju iznos 100` | `test/Stan.ts` | Prošao |
+| K5 | `K5: pravo se ne trosi i isti stan ponovno glasa u novom krugu` | `test/StanModul.ts` | Prošao |
+| K6 | `K6: stvarna blokada od pocetka do roka, povijest i novi vlasnik` | `test/StanModul.ts` | Prošao |
+| K7 | `K7: prijedlog se evidentira s autorom i stanom bez pokretanja glasanja` | `test/StanModul.ts` | Prošao |
+| K8 | `K8: ovlasti, kandidati, rokovi i zakazani krug` | `test/StanModul.ts` | Prošao |
+| K9 | `K9: konacnost prioriteta, prava, granice vremena i neglasaci` | `test/StanModul.ts` | Prošao |
+| K10 | `K10: cetiri prioriteta ne biljeze nijednu potporu ni sudjelovanje` | `test/StanModul.ts` | Prošao |
+| K11 | `K11: ponovljeni prijedlog odbija cijeli odabir bez djelomicnog upisa` | `test/StanModul.ts` | Prošao |
+| K12 | `K12: drugi glas ne moze promijeniti prvi odgovor ZA` | `test/StanModul.ts` | Prošao |
+| K13 | `K13: ponovljena izjednacenja, prazan dodatni krug i tocan skup` | `test/StanModul.ts` | Prošao |
+| K14 | `K14: dva izbora u dodatnom krugu odbijaju se bez biljezenja glasa` | `test/StanModul.ts` | Prošao |
+| K15 | `K15: 12 ZA i nula PROTIV daje odbijanje` | `test/StanModul.ts` | Prošao |
+| K15 | `K15: 13 ZA i nula PROTIV daje prihvacanje` | `test/StanModul.ts` | Prošao |
+| K16 | `K16: 0 ZA, rezultat bez finalizacije i fiksna osnovica` | `test/StanModul.ts` | Prošao |
+| K17 | `K17: cetiri neglasaca ne povecavaju ni ZA ni PROTIV` | `test/StanModul.ts` | Prošao |
+| K18 | `K18: glas na roku i nakon roka odbija se bez rucnog zatvaranja` | `test/StanModul.ts` | Prošao |
+| K19 | `K19: glas sekundu prije pocetka pada, tocno na pocetku uspijeva` | `test/StanModul.ts` | Prošao |
+| K20 | `K20: saldo drugog stana ne daje pravo glasa za tudji stan` | `test/StanModul.ts` | Prošao |
+| K21 | `K21: ugovor ne daje rezultate prije roka, nakon roka vraca zbrojeve` | `test/StanModul.ts` | Prošao — ugovorni dio |
+| K22 | `K22: samo predstavnik cita tocan popis stanova bez glasa` | `test/StanModul.ts` | Prošao |
+| K23 | `K23: granice ZA/PROTIV i odbijeni projekt nije ponovno sljedeci` | `test/StanModul.ts` | Prošao |
+| K24 | `K24: ista adresa glasa za dva stana, ali ne dvaput za isti` | `test/StanModul.ts` | Prošao |
+| K25 | `K25: unutarnja provjera blokira obje promjene bez gubitka stanja` | `test/Stan.ts` | Prošao |
+| K25 | `K25: konstruktor, jednokratna veza, nevaljane adrese i pogresan token` | `test/StanModul.ts` | Prošao |
+| K26 | `K26: promjena vlasnika ne mijenja povijesni glas ni sudjelovanje` | `test/StanModul.ts` | Prošao |
+| K27 | `K27: samo prolazak vremena daje konacan rezultat bez finalizacije` | `test/StanModul.ts` | Prošao |
+| K28 | `K28: prijedlozi u istom bloku razrjesavaju niza mjesta manjim ID-em` | `test/StanModul.ts` | Prošao |
+| K29 | `K29: kandidati se suzavaju nakon svakog dodatnog izjednacenja` | `test/StanModul.ts` | Prošao |
+| K30 | `K30: nakon odbijanja samo sljedeci projekt smije u ZA/PROTIV` | `test/StanModul.ts` | Prošao |
+| K31 | `K31: odbijen pa sljedeci, prihvacanje zavrsava ciklus i oslobadja mjesto` | `test/StanModul.ts` | Prošao |
+| K32 | `K32: tocno funkcije sucelja, bez dodatnih javnih funkcija` | `test/StanModul.ts` | Prošao |
+| K33 | `K33: najveci skup od 75 aktivnih prijedloga ostaje izvrsiv` | `test/StanModul.ts` | Prošao |
+| K34 | `K34: prava, prazni tekstovi, Unicode granice i tri aktivna po stanu` | `test/StanModul.ts` | Prošao |
+| K34 | `K34: odbija nevaljani UTF-8 bez potrosnje mjesta` | `test/StanModul.ts` | Prošao |
+| K35 | `K35: 12 ZA, rezultat bez finalizacije i fiksna osnovica` | `test/StanModul.ts` | Prošao |
+| K35 | `K35: 13 ZA, rezultat bez finalizacije i fiksna osnovica` | `test/StanModul.ts` | Prošao |
+| K36 | `K36: zabrana od roka, granica 90 dana, isti ID i novi slican projekt` | `test/StanModul.ts` | Prošao |
+| K37 | `K37: ovlasti, ID 0, aktivni zahtjev i događaj` | `test/Stan.ts` | Prošao |
+| K37 | `K37: nema postupka, pogrešan ID i zabrana ponovne uporabe` | `test/Stan.ts` | Prošao |
+| K37 | `K37: otkazivanje uspijeva sekundu prije isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: dovršetak pada sekundu prije isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: otkazivanje pada točno na isteku` | `test/Stan.ts` | Prošao |
+| K37 | `K37: dovršetak točno na isteku, prazni zamjenika i ukida stare ovlasti` | `test/Stan.ts` | Prošao |
+| K37 | `K37: setDeputy otkazuje zahtjev prije isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: setDeputy otkazuje zahtjev nakon isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: transferRepresentative otkazuje zahtjev prije isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: transferRepresentative otkazuje zahtjev nakon isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: transferOwnership otkazuje zahtjev prije isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: transferOwnership otkazuje zahtjev nakon isteka` | `test/Stan.ts` | Prošao |
+| K37 | `K37: odbijene promjene uloga ne otkazuju zahtjev` | `test/Stan.ts` | Prošao |
+| K37 | `K37: modul slijedi novog predstavnika bez dodatnih ovlasti zamjenika` | `test/StanModul.ts` | Prošao |
+| K38 | `K38: ugovorni dio; zbrojevi su blokirani, ali zapis glasa javno je citljiv` | `test/StanModul.ts` | Prošao — ugovorni dio |
+| K38 | `K38: aplikacija skriva zbrojeve prije roka i upozorava na javnost lanca (frontend)` | `test/StanModul.ts` | Čeka frontend (`it.skip`) |
+| K39 | `K39: odbija nevaljanog početnog zamjenika` | `test/Stan.ts` | Prošao |
+| K39 | `K39: imenovanje zamjenika i sve nevaljane adrese` | `test/Stan.ts` | Prošao |
+| K39 | `K39: transferRepresentative sinkronizira owner i predstavnika` | `test/Stan.ts` | Prošao |
+| K39 | `K39: transferRepresentative na zamjenika prazni njegovo mjesto` | `test/Stan.ts` | Prošao |
+| K39 | `K39: transferOwnership sinkronizira owner i predstavnika` | `test/Stan.ts` | Prošao |
+| K39 | `K39: transferOwnership na zamjenika prazni njegovo mjesto` | `test/Stan.ts` | Prošao |
+| K39 | `K39: odricanje je zabranjeno, neovlašteni poziv prvo pada na ovlasti` | `test/Stan.ts` | Prošao |
+| K40 | `K40: bez glasova ponavlja isti ciklus, novi prijedlog ceka sljedeci` | `test/StanModul.ts` | Prošao |
+| K41 | `K41: deploy, javna čitanja i prazna početna evidencija` | `test/Stan.ts` | Prošao |
+| K41 | `K41: ABI tokena; token ima tocno funkcije IStanToken i naslijedjene Ownable funkcije` | `test/Stan.ts` | Prošao |
+
+**Provjera potpunosti sljedivosti:** svih 41 kriterija ima barem jedan povezan izvršeni test. Svih 70 registriranih testnih slučajeva (69 izvršenih i 1 preskočen) nalazi se u tablici i ima oznaku postojećeg kriterija. Nema testova bez dodijeljenog kriterija niti kriterija bez povezanog testa.
+
+**Preostala rupa u provjeri aplikacije:** veza s testom ne znači da je cijeli kriterij dokazan. Za K21 provjeren je odgovor ugovora prije i nakon roka, ali prikaz rezultata u aplikaciji još nije provjeren. Za K38 izvršeni test dokazuje blokadu čitanja zbrojeva kroz ugovor i javnu čitljivost zapisa glasa na lancu. Preskočeni test K38 samo je označeno mjesto za buduću provjeru skrivanja zbrojeva i upozorenja u aplikaciji; nije izvršen dokaz niti dovršen frontend test. K21 i K38 zato ostaju djelomično provjereni do implementacije i provjere frontenda.
 
 ### Izvori i odluke
 
@@ -391,10 +474,85 @@ Odluke je korisnik izričito potvrdio u nastavku razgovora 11. 11. 2026., prije 
 
 Prvo se provjerava ovlast, zatim stanje postupka ili glasanja, pa ulazni podaci. Pri dodjeli/oduzimanju slijede provjera aktivnog kruga, postojanja stana i njegova prava; pri dodjeli zatim nenulta adresa. Pri pokretanju preuzimanja slijede odsutnost aktivnog zahtjeva, ID veći od 0 i neiskorištenost ID-a. Pri otkazivanju/dovršetku provjerava se odgovarajući aktivni ID, zatim vrijeme. Svi odbijeni pozivi zadržavaju prethodno stanje i ne ostavljaju događaje.
 
-### Budući modul i testiranje
+### Stanje nakon Dijela 5 — prije integracije modula
 
 - Token ima unutarnju nadogradivu provjeru `_isRoundActive()`. U ovoj verziji vraća false jer glasanje još ne postoji; budući modul mora je nadograditi stvarnim stanjem kruga. Dodjela i oduzimanje već koriste poruku K25.
 - Testni pomoćni ugovor simulira aktivnost kruga za provjeru blokade K25. To nije implementacija glasanja niti dokaz potpune integracije s modulom.
 - K5, K6, K24 i K26 u dijelu stvarnih glasova i povijesti ostaju za integracijske testove modula. Prag 13 ZA nije logika tokena.
 - Dopuštene su samo javne funkcije IStanToken i obvezne naslijeđene/override funkcije ERC20 i Ownable. Testni pomoćni ugovor nije ugovor za postavljanje na mrežu.
 - Korisnik je odobrio minimalne alate: Hardhat 3 (ESM, TypeScript), Mocha, ethers v6 i OpenZeppelin Contracts 5.x, uz nužne dodatke i tipove. Testiraju se uspješni i neuspješni slučajevi radnji. Funkcije koje uvijek odbijaju poziv nemaju uspješan slučaj, a bezuvjetna čitanja nemaju namjerno neuspješan slučaj.
+
+
+## Dio 6 — potvrđene odluke i implementacija modula (12. 11. 2026.)
+
+Korisnik je potvrdio plan prije koda, zatim preporuke 1A/2A/3A i preostale odluke odgovorom „sve A”. Ovaj odjeljak nadopunjuje i, gdje je potrebno, zamjenjuje ranije otvorene točke i opis stanja iz Dijela 5. Tehnički detalji ispod opisuju implementaciju; nisu tvrdnja da su svi ranije bili posebno propisani.
+
+### Životni ciklus i trajanje
+
+- Prihvaćeni prijedlog prestaje biti aktivan i oslobađa jedno od tri mjesta pripadajućeg stana. Odbijeni i neobrađeni prijedlozi ostaju aktivni. Odbijeni i tijekom 90-dnevne zabrane zauzima mjesto. Promjena vlasnika ne briše prijedloge ni limit stana.
+- Nema uređivanja, povlačenja ni dodatne funkcije aktivacije. Novi ID znači novi prijedlog, uz isti limit tri aktivna po stanu; sličnost teksta ne aktivira zabranu.
+- Prvi prioritetni krug uzima sve aktivne prijedloge koji u trenutku pokretanja nisu pod zabranom. Taj skup ostaje isti tijekom ciklusa. Novi prijedlozi predani tijekom ciklusa čekaju sljedeći ciklus, čak i ako se prioriteti ponavljaju zbog nultog sudjelovanja.
+- Nakon odbijanja posljednjeg projekta ciklus završava bez prihvaćenog projekta. Nakon prihvaćanja ciklus također završava. Novi ciklus uvijek ponovno određuje prioritete.
+- Zabrana traje do `endTime + 90 days`, uključuje vrijeme prije te granice, a na samoj granici projekt ponovno može u prioritete. Vrijeme naknadne tehničke obrade ne pomiče početak zabrane.
+- Početak i rok određuje predstavnik. Potrebno je `endTime > startTime` i `endTime > block.timestamp`. Trajanja 7/3 dana ostaju preporuka aplikaciji, ne ograničenje ugovora. Početak novog kruga ne smije biti prije roka prethodnog; novi krug pokreće se tek kada prethodni završi. Nema preklapanja ni već zakazanih krugova.
+- Aktivnost za blokadu promjene prava jest `startTime <= block.timestamp < endTime`. Prije početka zakazanog kruga promjena prava je dopuštena; od početka do roka zabranjena. Povijesni glasovi uvijek ostaju nepromijenjeni.
+
+### Rangiranje i rubni slučajevi
+
+- Rezultati svakog kruga prioriteta/dodatnog kruga rangiraju se po potporama silazno, zatim vremenu prijedloga i ID-u uzlazno. Jednake najveće potpore i dalje znače neriješeno prvo mjesto.
+- Dodatni krug bira pobjednika među izjednačenima. Pobjednik ide na prvo mjesto rang-liste ciklusa, a ostali ostaju u poretku izvornog kruga prioriteta (potpore, vrijeme, ID). Potpore iz dodatnih krugova ne zbrajaju se s prioritetima.
+- Ako dodatni krug nema glasova, vraća `NoVotes` i prazne vodeće ID-eve, kako nalaže tip rezultata. Prethodno izjednačenje ostaje neriješeno: dopušten je novi dodatni krug s istim kandidatima. Prazan početni prioritetni krug ponavlja se kao prioritetni, ne dodatni krug.
+- Svaki krug pohranjuje ID ciklusa i vezu na prethodni krug istog ciklusa (0 za prvi krug).
+- Nakon završenog dodatnog kruga dopušteno je nastaviti samo iz posljednjeg kruga; stari krug ne može otvoriti paralelnu granu glasanja.
+- U popisu neglasača nalaze se svi stanovi 1–25 bez glasa, uključujući one bez dodijeljenog prava. Čitanje tog popisa ne traži da krug završi.
+
+### Unicode tekst
+
+Naslov ima najviše 100, opis najviše 1000 Unicode skalarnih vrijednosti. `č` i pojedinačni emoji poput `😀` računaju se kao jedan znak; kombinacija slova i kombinirajućeg naglaska ili složenog emojija može imati više vrijednosti. Ne radi se normalizacija niti brojanje vizualnih grafema. Nevaljan UTF-8 se odbija. Prazan znači duljina nula; tekst sastavljen od razmaka nije posebno zabranjen. Prilozi i osobni podaci nisu dio implementacije.
+
+### Odobrena minimalna dopuna sučelja za K25
+
+| Funkcija | Uloga i učinak | Kriteriji |
+| --- | --- | --- |
+| `IStanToken.setVotingModule(address module)` | Samo predstavnik, jednokratno povezuje već postavljen modul | K25 |
+| `IStanToken.votingModule() view returns (address)` | Svi, nulta adresa dok modul nije povezan | K25 |
+| `IStanModul.tokenAddress() view returns (address)` | Svi, nepromjenjiva adresa tokena iz konstruktora | K25 |
+| `IStanModul.isRoundActive() view returns (bool)` | Svi, stvarna trenutačna aktivnost posljednjeg kruga | K25, K27 |
+
+- Uz ranijih 28 sada postoje ukupno 32 deklarirane funkcije u dva sučelja. Gornje četiri dopunjuju prethodne tablice sljedivosti. Modul nema drugih javnih funkcija ni automatskih javnih gettera. Unutarnje pomoćne funkcije nisu dio javnog sučelja.
+- Konstruktor modula prima `address initialToken`, provjerava kod na adresi i čita predstavnika kroz `IStanToken`. Veza tokena je nepromjenjiva. Token provjerava da modul ima kod, da `tokenAddress()` pokazuje na njega te da može pročitati neaktivan status. Jednokratnu vezu bilježi `VotingModuleLinked(address indexed module)`.
+- Redoslijed lokalnog postavljanja: `Stan(initialDeputy)`, zatim `StanModul(adresaStana)`, zatim predstavnikov `Stan.setVotingModule(adresaModula)`. Nepovezan modul ne smije pokrenuti nijednu vrstu kruga. Token prije povezivanja omogućuje dodjelu početnih prava.
+- Postavljanje povezuje odabrani ugovor; provjera sučelja nije dokaz vjerodostojnosti proizvoljnog tuđeg koda. Za projekt se postavlja ovdje testirani StanModul. Jednom postavljeni ugovori u Remix VM-u neće dobiti ove izmjene bez novog postavljanja.
+- `_isRoundActive()` u tokenu sada čita stvarni povezani modul. Testni StanRoundHarness ostaje samo pomoćni ugovor.
+
+### Dodatne tehničke poruke i redoslijed provjera
+
+Ranije propisane poruke ostaju točno iste. Za ranije neimenovane neuspjehe koriste se:
+
+| Uvjet | Poruka |
+| --- | --- |
+| Nulta adresa ili adresa bez koda pri povezivanju/konstruktoru | `Neispravna adresa` |
+| Modul je već trajno povezan | `Modul je vec povezan` |
+| Modul je za drugi token | `Neispravan token modula` |
+| Modul ne podržava potrebno čitanje sučelja | `Neispravan modul` |
+| Kandidat za povezivanje prijavljuje aktivan krug | `Modul je aktivan` |
+| Pokretanje kroz nepovezani modul | `Modul nije povezan` |
+| Prethodni krug je aktivan ili zakazan | `Prethodno glasanje nije zavrseno` |
+| Početak novog kruga preklapa interval prethodnog | `Preklapanje glasanja` |
+| Novi prioriteti dok postojeći ciklus nije završen (osim ponavljanja bez glasova) | `Ciklus nije zavrsen` |
+| ZA/PROTIV bez otvorenog ciklusa, uključujući nakon prihvaćanja/posljednjeg odbijanja | `Ciklus nije otvoren` |
+| Skup prioriteta ne odgovara svim raspoloživim prijedlozima / istom ciklusu | `Nepotpun skup prijedloga` |
+| Ponovljeni ID u popisu za pokretanje prioriteta | `Prijedlog je ponovljen` |
+| Prihvaćeni projekt ponovno u prioritetima | `Prijedlog nije raspoloziv` |
+| Projekt pod aktivnom zabranom | `Projekt je u zabrani` |
+| ZA/PROTIV za projekt koji nije sljedeći | `Projekt nije sljedeci` |
+| Rezultate čita netko tko nije predstavnik i nema STN | `Nema prava za rezultate` |
+| Nevaljana UTF-8 sekvenca | `Neispravan tekst` |
+
+Administrativne funkcije prvo provjeravaju ulogu, a pokretanja zatim povezanost i stanje ciklusa/kruga. Predaja glasa provjerava postojanje kruga, pravo za stan, vrstu, početak, kraj, prethodni glas te specifičan izbor. Nepoznat stan pri predlaganju/glasanju znači `Nema prava za stan`; izravni getter tokena i dalje vraća `Stan ne postoji`. Čitanje rezultata provjerava ovlast, postojanje kruga pa rok; čitanje neglasača ovlast pa postojanje. Ako postoji više neovisnih pogrešaka ulaza, mjerodavan je redoslijed provjera u implementaciji, a kriteriji ciljaju jedan nevaljan uvjet.
+
+### Obrada isteka i provjere
+
+`getRoundResults` izravno računa rezultat iz roka i glasova; ne traži promjenu stanja ni dodatnu finalizacijsku transakciju. Pri sljedećoj redovnoj radnji modul interno usklađuje aktivnost prijedloga, rang-listu, zabranu i stanje ciklusa. Odbijena transakcija poništava i tu internu obradu, a sljedeći valjan poziv ponovno je izvodi. To ne mijenja konačni rezultat.
+
+Testovi modula nalaze se u `test/StanModul.ts`, a postojeći testovi tokena u `test/Stan.ts`. Testovi javnih radnji pokrivaju uspjeh i neuspjeh. Bezuvjetni getteri `tokenAddress`, `isRoundActive` i `votingModule` nemaju namjerno neuspješan slučaj; provjeravaju se njihove vrijednosti i vremenska stanja. Aplikacijski prikaz i upozorenje o pseudonimnosti iz K21/K38 nisu dokazani testovima ugovora i ostaju posao frontenda. Nije izvršeno postavljanje na Sepoliju.

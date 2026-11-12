@@ -49,7 +49,7 @@ Danas sam radio na sučeljima pametnih ugovora. Razjasnio sam nedostatke u speci
 
 Datoteku sam učitao u Remix i pokrenuo kompilaciju. U SPEC je dodana tablica sljedivosti koja povezuje svih 28 funkcija s kriterijima K1–K41. Provjereno je da svaki kriterij ima povezanu funkciju i da nema funkcije bez kriterija.
 
-## T4 — Dio 5: token i provjera u Remixu (11.11.2026.)
+## T3 — Dio 5: token i provjera u Remixu (11.11.2026.)
 
 Pripremio sam ugovor `Stan.sol` koji implementira `IStanToken` uz OpenZeppelin ERC20 i Ownable. Token Stan (STN) ima 0 decimala i nije prenosiv. Stanovi imaju oznake 1–25, a ugovor počinje bez izdanih tokena. Dogovorena pravila administracije zapisana su u SPEC, a funkcije u ugovoru povezane su s kriterijima kroz komentare.
 
@@ -78,3 +78,63 @@ Uz ručne provjere, lokalno je prethodno prošlo 30 automatskih testova tokena i
 ### Spremanje tokena u projekt
 
 Ugovor tokena spremljen je u `contracts/Stan.sol`, pokraj sučelja `contracts/IStan.sol`. Budući da su obje datoteke već bile u lokalnom projektu, nije bilo potrebno ponovno kopiranje. Time je dovršen korak spremanja tokena u mapu `contracts/`.
+
+## T4 — Dio 6: modul glasanja i povezivanje tokena (12.11.2026.)
+
+Nakon čitanja AGENTS.md, SPEC-a, sučelja, tokena i dnevnika potvrđen je plan prije pisanja koda. Potvrdio sam preporuke za završetak ciklusa nakon posljednjeg odbijanja, isključenje projekata pod 90-dnevnom zabranom iz novog ciklusa i minimalno povezivanje modula s tokenom. Zatim sam odgovorom „sve A” potvrdio životni ciklus prijedloga, slobodno određivanje valjanih rokova i brojanje Unicode znakova. Odluke i dodatni tehnički detalji zapisani su u Dijelu 6 SPEC-a.
+
+### Implementacija
+
+- Dodan je `contracts/StanModul.sol`, Solidity ^0.8.24, koji implementira IStanModul. Adresu tokena prima konstruktorom i s tokenom komunicira samo preko IStanToken.
+- Implementirani su prijedlozi, prioriteti, ponovljeni dodatni krugovi, ZA/PROTIV s pragom 13 od 25, konačnost glasa, neglasači i čitanje rezultata nakon roka bez obvezne finalizacije.
+- Krugovi čuvaju vezu na ciklus i prethodni krug. Novi prijedlozi čekaju sljedeći ciklus. Prihvaćanje oslobađa mjesto stana; odbijeni prijedlog ostaje aktivan, uz zabranu 90 dana od roka završnog kruga.
+- Uz prethodno odobrenu dopunu sučelja, token dobiva `setVotingModule` i `votingModule`, a modul `tokenAddress` i `isRoundActive`. Veza je jednokratna; nepovezan modul ne može pokrenuti glasanje. Stvarna aktivnost kruga sada blokira promjene prava u Stanu.
+- Funkcije imaju oznake SPEC K#. Nisu dodane biblioteke niti druge javne funkcije mimo dopunjenih sučelja.
+
+### Lokalna automatska provjera
+
+| Provjera | Stvarni rezultat |
+| --- | --- |
+| Kompilacija | Solidity 0.8.24, uspješno; završna izmjena modula kompajlirana i kroz Hardhat test naredbu |
+| Mocha testovi | 49 prošlo: 30 postojećih testova tokena i 19 testova modula/integracije |
+| TypeScript | `npm run typecheck` prošao |
+| Provjera razlika | `git diff --check` bez grešaka |
+| Javne funkcije i veličina | Test potvrđuje podudarnost modula sa sučeljem i veličinu ispod EVM ograničenja 24 576 bajtova |
+
+Testovi uključuju uspješne i odbijene pozive, 0/12/13 ZA, nove vlasnike i povijesne glasove, točne vremenske granice, 90-dnevnu zabranu, promjenu predstavnika, nevaljan UTF-8, znakove s dijakritikom i emoji, izjednačenja koja se ponavljaju i sužavaju, nulto sudjelovanje, jednake vremenske oznake prijedloga te najveći skup od 75 aktivnih prijedloga.
+
+Tijekom razvoja ispravljene su dvije provjere vremena: odbijeni poziv pri procjeni transakcije ne stvara novi blok, pa prije naknadnog čitanja treba izričito stvoriti blok na zadanom vremenu. Ispravljen je i test rangiranja koji je glasao za prvi ID obrnutog popisa, a očekivao drugog pobjednika. Završni skup testova prolazi.
+
+Provjere su lokalne. Ovaj zapis ne tvrdi da sam modul ručno ispitao u Remixu ili postavio na Sepoliju. Aplikacijski prikaz i upozorenje o pseudonimnosti ostaju za frontend. Za zajedničku provjeru u Remixu treba ponovno postaviti ažurirani Stan, zatim StanModul s njegovom adresom, pa s predstavničkog računa pozvati setVotingModule.
+
+## T4 — Korak 6: tri pogreške AI-ja i njihovi ispravci (12.11.2026.)
+
+Tijekom izrade testova za modul glasanja naišao sam na tri pogreške u testovima koje je napisao AI. U nastavku opisujem što je bilo pogrešno i kako sam to ispravio uz njegovu pomoć. Sve tri pogreške bile su u `test/StanModul.ts`, pa nisam morao mijenjati ugovor ni poslovna pravila.
+
+### 1. Pogrešno pomicanje vremena u testovima
+
+**Što je AI pogriješio:** napisao je test koji postavlja vrijeme sljedećeg bloka, očekuje odbijenu transakciju i odmah nakon toga čita stanje ugovora. Međutim, odbijeni poziv tijekom procjene transakcije nije stvorio novi blok, pa se pri čitanju još koristilo staro vrijeme. Zbog toga test nije dobio očekivani rezultat: pojavila se poruka `Rezultati jos nisu dostupni`, odnosno aktivnost kruga bila je `false` umjesto `true`.
+
+**Što sam ispravio:** uz pomoć AI-ja dodao sam `mine(vrijeme)` prije čitanja stanja na početku ili kraju kruga. Time se ne postavlja samo vrijeme sljedećeg bloka nego se taj blok i stvara pozivom `evm_mine`. Za određivanje vremena sljedeće transakcije zadržao sam `at(vrijeme)`.
+
+**Rezultat:** testovi vremenskih granica i blokade promjene prava sada prolaze. Ovaj ispravak odnosi se na K18, K21, K25 i K27.
+
+### 2. Pogrešno pripremljen glas u testu rangiranja
+
+**Što je AI pogriješio:** u testu K28 upotrijebio je `ranked([3, 2, a])`, a očekivao poredak `[1, 2, 3]`, gdje je `a = 1`. Pomoćna funkcija `ranked` glasa za prvi projekt iz predanog popisa, pa je zapravo glasala za projekt 3. Ugovor je zato ispravno vratio `[3, 1, 2]`, ali je test pao jer je očekivao drugačiji rezultat.
+
+**Što sam ispravio:** uz pomoć AI-ja zamijenio sam taj poziv izričitim pokretanjem prioriteta pomoću `start("priority", [3, 2, a])`, zatim glasom za `[a]` i pomakom vremena na rok. Tako sam uskladio stvarno predani glas s očekivanim rezultatom. Druga dva prijedloga ostala su bez potpore i s jednakim vremenom podnošenja, kako bi se njihov poredak provjerio prema manjem ID-u.
+
+**Rezultat:** test sada dobiva očekivani poredak `[1, 2, 3]` i prolazi. Nije bilo potrebno mijenjati rangiranje u ugovoru.
+
+### 3. Pogrešna usporedba povratnih vrijednosti ethers biblioteke
+
+**Što je AI pogriješio:** u testovima K26 i K27 izravno je uspoređivao dva ethers v6 objekta `Result` pomoću `assert.deepEqual` iz `node:assert/strict`. Iako su sadržavali iste vrijednosti, provjera je pala uz poruku `Values have same structure but are not reference-equal`.
+
+**Što sam ispravio:** uz pomoć AI-ja pretvorio sam rezultate u obične ugniježđene nizove pomoću `.toArray(true)` prije usporedbe. Za popis neglasača upotrijebio sam `[...rezultat]`. Zadržao sam usporedbu svih vrijednosti, ali sam uklonio problem usporedbe posebnih objekata biblioteke.
+
+**Rezultat:** testovi sada prolaze i potvrđuju da promjena vlasnika ne mijenja povijesne glasove te da rezultat nakon isteka ostaje isti bez dodatne finalizacije i nakon odbijenog kasnog glasa.
+
+### Završna provjera
+
+Nakon ispravaka i dopune testova dobio sam rezultat **69 uspješnih testova i 1 preskočen test** pri lokalnom pokretanju `npx hardhat test` uz AI. Prošla je i provjera `npm run typecheck`. Preskočen test odnosi se na prikaz i upozorenje u aplikaciji iz K38, što ostavljam za frontend. Ugovorni dio K38 ima uspješan test. U SPEC sam uz pomoć AI-ja dopunio Sljedivost nazivima testova za kriterije K1–K41.

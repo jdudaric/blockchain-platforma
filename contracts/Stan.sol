@@ -3,7 +3,7 @@ pragma solidity ^0.8.24;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {IStanToken} from "./IStan.sol";
+import {IStanToken, IStanModul} from "./IStan.sol";
 
 /// @notice Evidencija jednog neprenosivog STN prava za svaki od 25 stanova.
 contract Stan is ERC20, Ownable, IStanToken {
@@ -13,6 +13,7 @@ contract Stan is ERC20, Ownable, IStanToken {
     mapping(uint256 => bool) private _usedTakeoverIds;
     // private ne stvara javnu funkciju čitanja; podatak ipak nije tajan na blockchainu.
     address private _deputy;
+    IStanModul private _votingModule;
     // ID 0 označava da trenutačno nema zahtjeva za preuzimanje.
     uint256 private _activeTakeoverId;
     // Unix vrijeme u sekundama od kojeg je dopušten dovršetak preuzimanja.
@@ -187,9 +188,28 @@ contract Stan is ERC20, Ownable, IStanToken {
         emit RepresentativeChanged(previousRepresentative, newRepresentative);
     }
 
-    /// @dev Mjesto za budući modul: zasad uvijek false jer glasanje nije implementirano. SPEC: K25.
-    /// @dev virtual dopušta nadogradnju u izvedenom ugovoru; ovo samo po sebi još ne utvrđuje aktivnost glasanja.
-    function _isRoundActive() internal view virtual returns (bool) { return false; }
+    /// @notice Predstavnik: jednokratna veza, bez mogucnosti zamjene usred glasanja. SPEC: K25.
+    function setVotingModule(address module) external override onlyRepresentative {
+        require(address(_votingModule) == address(0), "Modul je vec povezan");
+        require(module.code.length != 0, "Neispravna adresa");
+        try IStanModul(module).tokenAddress() returns (address linkedToken) {
+            require(linkedToken == address(this), "Neispravan token modula");
+        } catch { revert("Neispravan modul"); }
+        // Provjeri i citanje statusa prije trajnog povezivanja.
+        try IStanModul(module).isRoundActive() returns (bool active) {
+            require(!active, "Modul je aktivan");
+        } catch { revert("Neispravan modul"); }
+        _votingModule = IStanModul(module);
+        emit VotingModuleLinked(module);
+    }
+
+    /// @notice Svi: trenutan modul ili nulta adresa prije povezivanja. SPEC: K25.
+    function votingModule() external view override returns (address) { return address(_votingModule); }
+
+    /// @dev Stvarna aktivnost dolazi iz jednokratno povezanog modula. SPEC: K25, K27.
+    function _isRoundActive() internal view virtual returns (bool) {
+        return address(_votingModule) != address(0) && _votingModule.isRoundActive();
+    }
 
     /// @dev Blokira dodjelu i oduzimanje ako provjera vrati aktivan krug. SPEC: K25.
     function _requireNoActiveRound() internal view {
