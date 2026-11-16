@@ -138,3 +138,22 @@ Tijekom izrade testova za modul glasanja naišao sam na tri pogreške u testovim
 ### Završna provjera
 
 Nakon ispravaka i dopune testova dobio sam rezultat **69 uspješnih testova i 1 preskočen test** pri lokalnom pokretanju `npx hardhat test` uz AI. Prošla je i provjera `npm run typecheck`. Preskočen test odnosi se na prikaz i upozorenje u aplikaciji iz K38, što ostavljam za frontend. Ugovorni dio K38 ima uspješan test. U SPEC sam uz pomoć AI-ja dopunio Sljedivost nazivima testova za kriterije K1–K41.
+
+## T5 — Etapa 5: postavljanje ugovora na Sepoliju (16.11.2026.)
+
+U Etapi 5 postavio sam ugovor `Stan` na Sepoliju, zatim sam pri postavljanju ugovora `StanModul` proslijedio adresu tokena. S računa predstavnika povezao sam ih pozivom `setVotingModule`. U `sucelje/src/contracts.js` upisao sam adrese oba ugovora i uvezao njihove ABI-je iz `frontend/src/abi/`.
+
+- [Ugovor Stan na Sepolia Etherscanu](https://sepolia.etherscan.io/address/0xcEE1092a860238a455512F9A118341B21f3197DB)
+- [Ugovor StanModul na Sepolia Etherscanu](https://sepolia.etherscan.io/address/0xa5C42bf8B68C86847fa65a2DE440d770a23e98eC)
+
+## T5 — Etapa 5: MetaMask, saldo i dodjela prava (16.11.2026.)
+
+Uz pomoć ChatGPT-a povezao sam Vue sučelje s MetaMaskom preko Pinije i ethers v6. S ChatGPT-om sam razradio kako profesorov primjer čitanja i pisanja prilagoditi funkcijama koje imam u ugovoru. Saldo dohvaćam pozivom `balanceOf` bez potpisa transakcije i pretvaram ga iz `bigint` u tekst pomoću `.toString()`. Za `assignApartment` tražim potpis u MetaMasku, čekam potvrdu pozivom `tx.wait()` i zatim osvježavam saldo. U sučelju prikazujem razlog odbijanja kad ga dobijem od ugovora. Pokrenuo sam `npm run build` u mapi `sucelje/` i build je prošao.
+
+## T5 — Etapa 5: ručna provjera u Braveu (16.11.2026.)
+
+- S računom Account 1, koji je već imao ulogu predstavnika, dodijelio sam stan 1 vlastitoj adresi. Potvrdio sam transakciju u MetaMasku i nakon mrežne potvrde vidio porast salda s 0 na 1 STN. [Potvrđena transakcija na Sepolia Etherscanu](https://sepolia.etherscan.io/tx/0x31000eebfd7ecc34d0989c1a20230d953263b69b319fca8840b21a90d9ae9f00)
+- Prebacio sam se na Account 2 i provjerio da ima 0 STN i da mu sučelje ne nudi dodjelu prava. Tom računu nisam dodijelio stan, pa nema ni glasačko pravo.
+- Provjerio sam poruku kad sam odbio potpis u MetaMasku i upozorenje kad sam odabrao pogrešnu mrežu. Pri ponovnoj dodjeli zauzetog stana dobio sam `Stan vec ima token` u provjeri prije potpisa. Za odbijene pokušaje nemam potvrdu transakcije na lancu.
+
+Ručnu provjeru u ovom terminu proveo sam za povezivanje novčanika, čitanje salda i dodjelu prava. Cijeli ciklus glasanja na Sepoliji nisam potvrdio. Za prikaz rezultata u sučelju i upozorenje o javnosti podataka (K21 i K38) nemam potvrđenu provjeru. Zadnji potvrđeni lokalni rezultat Hardhata zapisao sam 12.11.2026. Tada mi je prošlo 69 testova, a jedan test za prikaz u sučelju iz K38 ostao je preskočen.
